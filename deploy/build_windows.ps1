@@ -142,7 +142,11 @@ Copy-Item $LgplFile (Join-Path $BundledLicenseDir "LGPL-3.0.txt")
 Copy-Item "resources/tesseract/tessdata/LICENSE" (
   Join-Path $BundledLicenseDir "TESSERACT-TESSDATA-APACHE-2.0.txt"
 )
-$SitePackages = (& $Python -c "import site; print(site.getsitepackages()[0])").Trim()
+$VirtualEnvironment = Split-Path -Parent (Split-Path -Parent $Python)
+$SitePackages = Join-Path $VirtualEnvironment "Lib\site-packages"
+if (-not (Test-Path $SitePackages -PathType Container)) {
+  throw "Windows site-packages directory was not found: $SitePackages"
+}
 & $Python deploy/windows/collect_licenses.py $SitePackages $BundledLicenseDir
 Assert-LastExitCode "Collect dependency license texts"
 $PdfiumNotice = Get-ChildItem $SitePackages -File -Filter "LicenseRef-PdfiumThirdParty.txt" -Recurse |
