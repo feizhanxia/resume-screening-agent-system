@@ -79,7 +79,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         env:
           GH_TOKEN: ${{ github.token }}
-        shell: powershell
+        shell: pwsh
         run: |
           $Arguments = @(
             "release", "create", $env:GITHUB_REF_NAME,
