@@ -16,11 +16,16 @@ from resume_agent.extraction.ocr import (
 
 EXTRACTOR_VERSION = "pdfium-1"
 MIN_TEXT_CHARS = 24
+MAX_PDF_PAGES = 500
+MAX_RENDER_PIXELS = 60_000_000
 
 
 def _ocr_page(page: object, languages: str = "chi_sim+eng") -> tuple[str, str | None]:
     executable = find_tesseract()
     try:
+        width, height = page.get_size()
+        if width * 2.2 * height * 2.2 > MAX_RENDER_PIXELS:
+            return "", "页面渲染像素超过安全上限"
         bitmap = page.render(scale=2.2)
         image = bitmap.to_pil()
         with tempfile.TemporaryDirectory(prefix="resume-agent-ocr-") as temp_dir:
@@ -75,6 +80,16 @@ def extract_pdf(path: Path, file_id: str, ocr_languages: str = "chi_sim+eng") ->
     errors: list[str] = []
     ocr_used = False
     page_count = len(document)
+    if page_count > MAX_PDF_PAGES:
+        document.close()
+        return ExtractionResult(
+            file_id=file_id,
+            status=ExtractionStatus.FAILED,
+            expected_units=page_count,
+            covered_units=0,
+            error=f"PDF 超过 {MAX_PDF_PAGES} 页的自动处理安全上限，需要人工复核",
+            extractor_version=EXTRACTOR_VERSION,
+        )
     for index in range(page_count):
         page_no = index + 1
         try:
@@ -124,6 +139,7 @@ def extract_pdf(path: Path, file_id: str, ocr_languages: str = "chi_sim+eng") ->
         final_status = ExtractionStatus.OCR
     else:
         final_status = ExtractionStatus.EXTRACTED
+    document.close()
     return ExtractionResult(
         file_id=file_id,
         status=final_status,

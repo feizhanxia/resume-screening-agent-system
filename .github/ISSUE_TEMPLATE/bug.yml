@@ -1,0 +1,45 @@
+name: Bug 报告
+description: 使用合成数据报告可复现问题
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: 请勿上传真实简历、API Key、数据库、日志中的个人信息或私有路径。
+  - type: input
+    id: version
+    attributes:
+      label: 版本
+      placeholder: v0.1.0-beta.1 / 源码提交号
+    validations:
+      required: true
+  - type: dropdown
+    id: package
+    attributes:
+      label: 使用方式
+      options:
+        - Windows 安装版
+        - Windows 免安装版
+        - 源码运行
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: 问题与复现步骤
+      description: 使用合成或已完整匿名化的材料描述。
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望结果
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: 隐私确认
+      options:
+        - label: 我确认没有附带真实候选人信息、密钥或私有文件路径。
+          required: true

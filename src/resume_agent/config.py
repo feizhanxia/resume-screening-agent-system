@@ -60,6 +60,5 @@ def save_api_key(value: str) -> None:
 def default_config() -> RunConfig:
     return RunConfig(
         model=os.getenv("DEEPSEEK_MODEL", "deepseek-v4-flash"),
-        audit_model=os.getenv("DEEPSEEK_AUDIT_MODEL", "deepseek-v4-pro"),
         api_base=os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com"),
     )

@@ -3,6 +3,8 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
+from PIL import Image
+
 from resume_agent.domain.models import ExtractedUnit, ExtractionResult, ExtractionStatus
 from resume_agent.extraction.ocr import (
     command_with_tessdata,
@@ -12,9 +14,21 @@ from resume_agent.extraction.ocr import (
 )
 
 EXTRACTOR_VERSION = "tesseract-image-1"
+MAX_IMAGE_PIXELS = 60_000_000
+
+
+def _preflight_image(path: Path) -> None:
+    with Image.open(path) as image:
+        width, height = image.size
+        if width * height > MAX_IMAGE_PIXELS:
+            raise ValueError("图片像素超过自动 OCR 安全上限")
 
 
 def extract_image(path: Path, file_id: str, languages: str = "chi_sim+eng") -> ExtractionResult:
+    try:
+        _preflight_image(path)
+    except Exception as exc:
+        return _result(file_id, "", str(exc), "preflight")
     executable = find_tesseract()
     if not executable:
         text, error = rapid_ocr_image(path)
