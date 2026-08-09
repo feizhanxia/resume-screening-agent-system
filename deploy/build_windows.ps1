@@ -143,25 +143,8 @@ Copy-Item "resources/tesseract/tessdata/LICENSE" (
   Join-Path $BundledLicenseDir "TESSERACT-TESSDATA-APACHE-2.0.txt"
 )
 $SitePackages = (& $Python -c "import site; print(site.getsitepackages()[0])").Trim()
-$CopiedPackageLicenses = @()
-Get-ChildItem $SitePackages -Directory -Filter "*.dist-info" | ForEach-Object {
-  $PackageInfo = $_
-  $LicenseFiles = Get-ChildItem $PackageInfo.FullName -File -Recurse | Where-Object {
-    $_.Name -match '^(LICENSE|LICENCE|COPYING|NOTICE)($|[._-])'
-  }
-  if ($LicenseFiles) {
-    $PackageLicenseDir = Join-Path $BundledLicenseDir $PackageInfo.Name
-    New-Item -ItemType Directory -Force $PackageLicenseDir | Out-Null
-    foreach ($LicenseFile in $LicenseFiles) {
-      $Destination = Join-Path $PackageLicenseDir $LicenseFile.Name
-      Copy-Item $LicenseFile.FullName $Destination -Force
-      $CopiedPackageLicenses += $Destination
-    }
-  }
-}
-if ($CopiedPackageLicenses.Count -lt 5) {
-  throw "Dependency license collection is incomplete: only $($CopiedPackageLicenses.Count) files found"
-}
+& $Python deploy/windows/collect_licenses.py $SitePackages $BundledLicenseDir
+Assert-LastExitCode "Collect dependency license texts"
 $PdfiumNotice = Get-ChildItem $SitePackages -File -Filter "LicenseRef-PdfiumThirdParty.txt" -Recurse |
   Select-Object -First 1
 if (-not $PdfiumNotice) {
