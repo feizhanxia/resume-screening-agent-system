@@ -42,6 +42,12 @@ function Assert-LastExitCode([string]$Step) {
   }
 }
 
+function Write-Utf8NoBomLf([string]$Path, [string[]]$Lines) {
+  $Utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+  $Content = ($Lines -join "`n") + "`n"
+  [System.IO.File]::WriteAllText($Path, $Content, $Utf8NoBom)
+}
+
 function Find-InnoSetup {
   $Candidates = @(
     (Join-Path ${env:ProgramFiles(x86)} "Inno Setup 6\ISCC.exe"),
@@ -137,17 +143,31 @@ Copy-Item "resources/tesseract/tessdata/LICENSE" (
   Join-Path $BundledLicenseDir "TESSERACT-TESSDATA-APACHE-2.0.txt"
 )
 $SitePackages = (& $Python -c "import site; print(site.getsitepackages()[0])").Trim()
+$CopiedPackageLicenses = @()
 Get-ChildItem $SitePackages -Directory -Filter "*.dist-info" | ForEach-Object {
-  $PackageLicenses = Join-Path $_.FullName "licenses"
-  if (Test-Path $PackageLicenses) {
-    Copy-Item $PackageLicenses (Join-Path $BundledLicenseDir $_.Name) -Recurse
+  $PackageInfo = $_
+  $LicenseFiles = Get-ChildItem $PackageInfo.FullName -File -Recurse | Where-Object {
+    $_.Name -match '^(LICENSE|LICENCE|COPYING|NOTICE)($|[._-])'
   }
+  if ($LicenseFiles) {
+    $PackageLicenseDir = Join-Path $BundledLicenseDir $PackageInfo.Name
+    New-Item -ItemType Directory -Force $PackageLicenseDir | Out-Null
+    foreach ($LicenseFile in $LicenseFiles) {
+      $Destination = Join-Path $PackageLicenseDir $LicenseFile.Name
+      Copy-Item $LicenseFile.FullName $Destination -Force
+      $CopiedPackageLicenses += $Destination
+    }
+  }
+}
+if ($CopiedPackageLicenses.Count -lt 5) {
+  throw "Dependency license collection is incomplete: only $($CopiedPackageLicenses.Count) files found"
 }
 $PdfiumNotice = Get-ChildItem $SitePackages -File -Filter "LicenseRef-PdfiumThirdParty.txt" -Recurse |
   Select-Object -First 1
-if ($PdfiumNotice) {
-  Copy-Item $PdfiumNotice.FullName (Join-Path $BundledLicenseDir $PdfiumNotice.Name)
+if (-not $PdfiumNotice) {
+  throw "pypdfium2 third-party license notice was not found"
 }
+Copy-Item $PdfiumNotice.FullName (Join-Path $BundledLicenseDir $PdfiumNotice.Name)
 
 $env:QT_QPA_PLATFORM = "offscreen"
 $env:RESUME_AGENT_SMOKE_TEST = "1"
@@ -160,9 +180,11 @@ Remove-Item Env:\RESUME_AGENT_SMOKE_TEST -ErrorAction SilentlyContinue
 
 Compress-Archive -Path (Join-Path $AppDir "*") -DestinationPath $PortableZip -CompressionLevel Optimal
 
-& $Python -m pip list --format=freeze | Set-Content -Encoding UTF8 (
+$DependencyLines = @(& $Python -m pip list --format=freeze)
+Assert-LastExitCode "Record Windows dependency versions"
+Write-Utf8NoBomLf (
   Join-Path $DistDir "windows-dependencies.txt"
-)
+) $DependencyLines
 
 $InnoSetup = Find-InnoSetup
 if (-not $InnoSetup) {
@@ -177,9 +199,28 @@ if (-not $InnoSetup) {
 
 $Hashes = Get-ChildItem $DistDir -File | Where-Object {
   $_.Name -like "$AppName-*.zip" -or $_.Name -like "$AppName-Setup-*.exe"
-} | Get-FileHash -Algorithm SHA256
-$Hashes | ForEach-Object { "{0}  {1}" -f $_.Hash.ToLowerInvariant(), (Split-Path $_.Path -Leaf) } |
-  Set-Content -Encoding UTF8 (Join-Path $DistDir "windows-SHA256.txt")
+} | Sort-Object Name | Get-FileHash -Algorithm SHA256
+$HashLines = @($Hashes | ForEach-Object {
+  "{0}  {1}" -f $_.Hash.ToLowerInvariant(), (Split-Path $_.Path -Leaf)
+})
+if ($HashLines.Count -lt 2) {
+  throw "Expected both installer and portable archive before writing checksums"
+}
+foreach ($HashLine in $HashLines) {
+  if ($HashLine -notmatch '^([0-9a-f]{64})  (.+)$') {
+    throw "Invalid checksum line: $HashLine"
+  }
+  $ExpectedHash = $Matches[1]
+  $ArtifactPath = Join-Path $DistDir $Matches[2]
+  if (-not (Test-Path $ArtifactPath -PathType Leaf)) {
+    throw "Checksum references a missing artifact: $ArtifactPath"
+  }
+  $ActualHash = (Get-FileHash $ArtifactPath -Algorithm SHA256).Hash.ToLowerInvariant()
+  if ($ActualHash -ne $ExpectedHash) {
+    throw "Checksum verification failed for $ArtifactPath"
+  }
+}
+Write-Utf8NoBomLf (Join-Path $DistDir "windows-SHA256.txt") $HashLines
 
 Write-Host "Windows build completed:"
 Write-Host "  Portable: $PortableZip"
