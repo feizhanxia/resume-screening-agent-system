@@ -37,7 +37,7 @@ jobs:
         with:
           name: resume-screening-agent-windows-x64-installer
           path: |
-            dist/简历筛选工作台-Setup-x64.exe
+            dist/ResumeScreeningAgent-Setup-x64.exe
             dist/windows-SHA256.txt
           if-no-files-found: error
           compression-level: 0
@@ -48,7 +48,7 @@ jobs:
         with:
           name: resume-screening-agent-windows-x64-portable
           path: |
-            dist/简历筛选工作台-portable-x64.zip
+            dist/ResumeScreeningAgent-portable-x64.zip
             dist/windows-SHA256.txt
           if-no-files-found: error
           compression-level: 0

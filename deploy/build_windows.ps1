@@ -9,7 +9,7 @@ $ProgressPreference = "SilentlyContinue"
 $ProjectDir = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 Set-Location $ProjectDir
 
-$AppName = "简历筛选工作台"
+$AppName = "ResumeScreeningAgent"
 $BuildArch = "x64"
 $Python = Join-Path $ProjectDir ".venv-windows\Scripts\python.exe"
 $DistDir = Join-Path $ProjectDir "dist"
@@ -27,12 +27,12 @@ function Find-PythonLauncher {
       return "python"
     }
   }
-  throw "未找到 Python 3.12。请从 python.org 安装 64 位 Python 3.12。"
+  throw "Python 3.12 x64 was not found. Install it from python.org."
 }
 
 function Assert-LastExitCode([string]$Step) {
   if ($LASTEXITCODE -ne 0) {
-    throw "$Step 失败，退出码：$LASTEXITCODE"
+    throw "$Step failed with exit code $LASTEXITCODE"
   }
 }
 
@@ -57,24 +57,24 @@ if (-not (Test-Path $Python)) {
   } else {
     & python -m venv (Join-Path $ProjectDir ".venv-windows")
   }
-  Assert-LastExitCode "创建 Python 虚拟环境"
+  Assert-LastExitCode "Create Python virtual environment"
 }
 
 & $Python -m pip install --upgrade pip wheel
-Assert-LastExitCode "升级 Python 构建工具"
+Assert-LastExitCode "Upgrade Python build tools"
 & $Python -m pip install -e ".[dev]" pyinstaller
-Assert-LastExitCode "安装项目和打包依赖"
+Assert-LastExitCode "Install project and packaging dependencies"
 
 if (-not $SkipTests) {
   & $Python -m ruff check src tests
-  Assert-LastExitCode "代码检查"
+  Assert-LastExitCode "Lint"
   & $Python -m pytest
-  Assert-LastExitCode "自动化测试"
+  Assert-LastExitCode "Tests"
 }
 
 New-Item -ItemType Directory -Force (Split-Path $IconFile) | Out-Null
 & $Python deploy/windows/generate_icon.py $IconFile
-Assert-LastExitCode "生成 Windows 应用图标"
+Assert-LastExitCode "Generate Windows application icon"
 
 if (Test-Path $AppDir) {
   Remove-Item -Recurse -Force $AppDir
@@ -97,17 +97,17 @@ if (Test-Path $PortableZip) {
   --hidden-import=keyring.backends.Windows `
   --add-data="resources;resources" `
   src/resume_agent/app/__main__.py
-Assert-LastExitCode "冻结 Windows 应用"
+Assert-LastExitCode "Freeze Windows application"
 
 $Executable = Join-Path $AppDir "$AppName.exe"
 if (-not (Test-Path $Executable)) {
-  throw "PyInstaller 未生成预期程序：$Executable"
+  throw "PyInstaller did not create the expected executable: $Executable"
 }
 
 $env:QT_QPA_PLATFORM = "offscreen"
 $env:RESUME_AGENT_SMOKE_TEST = "1"
 & $Executable
-Assert-LastExitCode "Windows 打包产物启动/OCR 自检"
+Assert-LastExitCode "Packaged Windows application/OCR smoke test"
 Remove-Item Env:\QT_QPA_PLATFORM -ErrorAction SilentlyContinue
 Remove-Item Env:\RESUME_AGENT_SMOKE_TEST -ErrorAction SilentlyContinue
 
@@ -116,12 +116,12 @@ Compress-Archive -Path (Join-Path $AppDir "*") -DestinationPath $PortableZip -Co
 $InnoSetup = Find-InnoSetup
 if (-not $InnoSetup) {
   if ($RequireInstaller) {
-    throw "未找到 Inno Setup 6，无法生成 Setup.exe。请先安装 Inno Setup 6。"
+    throw "Inno Setup 6 was not found; Setup.exe cannot be created."
   }
-  Write-Warning "未找到 Inno Setup 6；已生成便携 ZIP，跳过安装器。"
+  Write-Warning "Inno Setup 6 was not found. Portable ZIP created; installer skipped."
 } else {
   & $InnoSetup "deploy/windows/installer.iss"
-  Assert-LastExitCode "Inno Setup 安装器构建"
+  Assert-LastExitCode "Build Inno Setup installer"
 }
 
 $Hashes = Get-ChildItem $DistDir -File | Where-Object {
@@ -130,9 +130,11 @@ $Hashes = Get-ChildItem $DistDir -File | Where-Object {
 $Hashes | ForEach-Object { "{0}  {1}" -f $_.Hash.ToLowerInvariant(), $_.Path } |
   Set-Content -Encoding UTF8 (Join-Path $DistDir "windows-SHA256.txt")
 
-Write-Host "Windows 构建完成："
-Write-Host "  便携版：$PortableZip"
+Write-Host "Windows build completed:"
+Write-Host "  Portable: $PortableZip"
 if ($InnoSetup) {
-  Write-Host "  安装器：$(Join-Path $DistDir "$AppName-Setup-$BuildArch.exe")"
+  $InstallerPath = Join-Path $DistDir "ResumeScreeningAgent-Setup-$BuildArch.exe"
+  Write-Host "  Installer: $InstallerPath"
 }
-Write-Host "  校验值：$(Join-Path $DistDir "windows-SHA256.txt")"
+$HashPath = Join-Path $DistDir "windows-SHA256.txt"
+Write-Host "  Checksums: $HashPath"

@@ -47,8 +47,8 @@ resume-agent /path/to/resumes /path/to/output --jd "岗位要求" --requirements
 
 Windows 构建会执行代码检查、自动化测试和冻结程序 OCR 自检，并生成：
 
-- `dist/简历筛选工作台-portable-x64.zip`：免安装便携版。
-- `dist/简历筛选工作台-Setup-x64.exe`：Inno Setup 用户级安装器；需要构建机装有 Inno Setup 6。
+- `dist/ResumeScreeningAgent-portable-x64.zip`：免安装便携版。
+- `dist/ResumeScreeningAgent-Setup-x64.exe`：Inno Setup 用户级安装器；需要构建机装有 Inno Setup 6。安装后的产品名和快捷方式仍显示“简历筛选工作台”。
 - `dist/windows-SHA256.txt`：两个交付物的 SHA-256。
 
 仓库同时包含 `.github/workflows/build-windows.yml`。将源码放入私有 GitHub 仓库后可手动触发 Windows 2022 构建，无需自备 Windows 电脑；工作流只上传构建产物，不保存 API Key 或简历。
