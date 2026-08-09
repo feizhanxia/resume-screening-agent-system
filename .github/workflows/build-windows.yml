@@ -1,0 +1,55 @@
+name: Build Windows release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  windows-x64:
+    runs-on: windows-2022
+    timeout-minutes: 45
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install Python 3.12 x64
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          architecture: "x64"
+          cache: "pip"
+
+      - name: Install Inno Setup
+        shell: powershell
+        run: choco install innosetup --yes --no-progress
+
+      - name: Build, test and smoke-test Windows artifacts
+        shell: powershell
+        run: ./deploy/build_windows.ps1 -RequireInstaller
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: resume-screening-agent-windows-x64-installer
+          path: |
+            dist/简历筛选工作台-Setup-x64.exe
+            dist/windows-SHA256.txt
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+
+      - name: Upload portable package
+        uses: actions/upload-artifact@v4
+        with:
+          name: resume-screening-agent-windows-x64-portable
+          path: |
+            dist/简历筛选工作台-portable-x64.zip
+            dist/windows-SHA256.txt
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14

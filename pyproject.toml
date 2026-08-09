@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=75", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "resume-screening-agent"
+version = "0.1.0"
+description = "Local-first desktop resume screening agent"
+readme = "README.md"
+requires-python = ">=3.12,<3.14"
+license = { text = "Proprietary" }
+authors = [{ name = "Resume Screening Team" }]
+dependencies = [
+  "PySide6-Essentials>=6.8,<7",
+  "pydantic>=2.10,<3",
+  "pypdfium2>=4.30,<5",
+  "Pillow>=11,<13",
+  "python-docx>=1.1,<2",
+  "openpyxl>=3.1,<4",
+  "openai>=2.0,<3",
+  "keyring>=25,<26",
+  "rapidocr>=3.9,<4",
+  "onnxruntime>=1.22,<2",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3,<9",
+  "pytest-asyncio>=0.25,<1",
+  "ruff>=0.11,<1",
+]
+
+[project.scripts]
+resume-agent = "resume_agent.cli:main"
+resume-agent-gui = "resume_agent.app:main"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

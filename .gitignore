@@ -1,0 +1,29 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+dist/
+build/
+deliverables/
+*.egg-info/
+*.spec
+
+# Runtime data and private resumes
+data/
+resumes/
+.resume-cache/
+*.db
+*.db-shm
+*.db-wal
+outputs/
+
+# Local files
+.DS_Store
+*.log
