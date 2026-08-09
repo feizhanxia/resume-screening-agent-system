@@ -16,6 +16,9 @@ $DistDir = Join-Path $ProjectDir "dist"
 $AppDir = Join-Path $DistDir $AppName
 $PortableZip = Join-Path $DistDir "$AppName-portable-$BuildArch.zip"
 $IconFile = Join-Path $ProjectDir "build\windows\resume-agent.ico"
+$LanguageFile = Join-Path $ProjectDir "build\windows\ChineseSimplified.isl"
+$LanguageUrl = "https://raw.githubusercontent.com/jrsoftware/issrc/6054ca127cb6e4fa041350406287b997c4b54a9d/Files/Languages/ChineseSimplified.isl"
+$LanguageSha256 = "e0b0b350e2245f3c5e65586dfe43d574f6e7f06f2261149aba284954b3fc9a8d"
 
 function Find-PythonLauncher {
   if (Get-Command py -ErrorAction SilentlyContinue) {
@@ -75,6 +78,11 @@ if (-not $SkipTests) {
 New-Item -ItemType Directory -Force (Split-Path $IconFile) | Out-Null
 & $Python deploy/windows/generate_icon.py $IconFile
 Assert-LastExitCode "Generate Windows application icon"
+Invoke-WebRequest -UseBasicParsing -Uri $LanguageUrl -OutFile $LanguageFile
+$DownloadedLanguageHash = (Get-FileHash $LanguageFile -Algorithm SHA256).Hash.ToLowerInvariant()
+if ($DownloadedLanguageHash -ne $LanguageSha256) {
+  throw "Inno Setup language file checksum mismatch"
+}
 
 if (Test-Path $AppDir) {
   Remove-Item -Recurse -Force $AppDir
