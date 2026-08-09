@@ -19,6 +19,9 @@ $IconFile = Join-Path $ProjectDir "build\windows\resume-agent.ico"
 $LanguageFile = Join-Path $ProjectDir "build\windows\ChineseSimplified.isl"
 $LanguageUrl = "https://raw.githubusercontent.com/jrsoftware/issrc/6054ca127cb6e4fa041350406287b997c4b54a9d/Files/Languages/ChineseSimplified.isl"
 $LanguageSha256 = "e0b0b350e2245f3c5e65586dfe43d574f6e7f06f2261149aba284954b3fc9a8d"
+$LgplFile = Join-Path $ProjectDir "build\windows\LGPL-3.0.txt"
+$LgplUrl = "https://www.gnu.org/licenses/lgpl-3.0.txt"
+$LgplSha256 = "e3a994d82e644b03a792a930f574002658412f62407f5fee083f2555c5f23118"
 
 function Find-PythonLauncher {
   if (Get-Command py -ErrorAction SilentlyContinue) {
@@ -37,6 +40,12 @@ function Assert-LastExitCode([string]$Step) {
   if ($LASTEXITCODE -ne 0) {
     throw "$Step failed with exit code $LASTEXITCODE"
   }
+}
+
+function Write-Utf8NoBomLf([string]$Path, [string[]]$Lines) {
+  $Utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+  $Content = ($Lines -join "`n") + "`n"
+  [System.IO.File]::WriteAllText($Path, $Content, $Utf8NoBom)
 }
 
 function Find-InnoSetup {
@@ -65,8 +74,16 @@ if (-not (Test-Path $Python)) {
 
 & $Python -m pip install --upgrade pip wheel
 Assert-LastExitCode "Upgrade Python build tools"
-& $Python -m pip install -e ".[dev]" pyinstaller
+& $Python -m pip install -e ".[dev]"
 Assert-LastExitCode "Install project and packaging dependencies"
+
+$AppVersion = (& $Python -c "from resume_agent import __version__; print(__version__)").Trim()
+if (-not (Select-String -Quiet -SimpleMatch "ProductVersion', '$AppVersion'" "deploy/windows/version_info.txt")) {
+  throw "deploy/windows/version_info.txt does not match package version $AppVersion"
+}
+if (-not (Select-String -Quiet -SimpleMatch "#define MyAppVersion `"$AppVersion`"" "deploy/windows/installer.iss")) {
+  throw "deploy/windows/installer.iss does not match package version $AppVersion"
+}
 
 if (-not $SkipTests) {
   & $Python -m ruff check src tests
@@ -82,6 +99,11 @@ Invoke-WebRequest -UseBasicParsing -Uri $LanguageUrl -OutFile $LanguageFile
 $DownloadedLanguageHash = (Get-FileHash $LanguageFile -Algorithm SHA256).Hash.ToLowerInvariant()
 if ($DownloadedLanguageHash -ne $LanguageSha256) {
   throw "Inno Setup language file checksum mismatch"
+}
+Invoke-WebRequest -UseBasicParsing -Uri $LgplUrl -OutFile $LgplFile
+$DownloadedLgplHash = (Get-FileHash $LgplFile -Algorithm SHA256).Hash.ToLowerInvariant()
+if ($DownloadedLgplHash -ne $LgplSha256) {
+  throw "LGPL-3.0 license checksum mismatch"
 }
 
 if (Test-Path $AppDir) {
@@ -112,6 +134,28 @@ if (-not (Test-Path $Executable)) {
   throw "PyInstaller did not create the expected executable: $Executable"
 }
 
+Copy-Item "LICENSE" (Join-Path $AppDir "LICENSE.txt")
+Copy-Item "THIRD_PARTY_NOTICES.md" (Join-Path $AppDir "THIRD_PARTY_NOTICES.md")
+$BundledLicenseDir = Join-Path $AppDir "licenses"
+New-Item -ItemType Directory -Force $BundledLicenseDir | Out-Null
+Copy-Item $LgplFile (Join-Path $BundledLicenseDir "LGPL-3.0.txt")
+Copy-Item "resources/tesseract/tessdata/LICENSE" (
+  Join-Path $BundledLicenseDir "TESSERACT-TESSDATA-APACHE-2.0.txt"
+)
+$VirtualEnvironment = Split-Path -Parent (Split-Path -Parent $Python)
+$SitePackages = Join-Path $VirtualEnvironment "Lib\site-packages"
+if (-not (Test-Path $SitePackages -PathType Container)) {
+  throw "Windows site-packages directory was not found: $SitePackages"
+}
+& $Python deploy/windows/collect_licenses.py $SitePackages $BundledLicenseDir
+Assert-LastExitCode "Collect dependency license texts"
+$PdfiumNotice = Get-ChildItem $SitePackages -File -Filter "LicenseRef-PdfiumThirdParty.txt" -Recurse |
+  Select-Object -First 1
+if (-not $PdfiumNotice) {
+  throw "pypdfium2 third-party license notice was not found"
+}
+Copy-Item $PdfiumNotice.FullName (Join-Path $BundledLicenseDir $PdfiumNotice.Name)
+
 $env:QT_QPA_PLATFORM = "offscreen"
 $env:RESUME_AGENT_SMOKE_TEST = "1"
 $SmokeProcess = Start-Process -FilePath $Executable -Wait -PassThru
@@ -121,7 +165,14 @@ if ($SmokeProcess.ExitCode -ne 0) {
 Remove-Item Env:\QT_QPA_PLATFORM -ErrorAction SilentlyContinue
 Remove-Item Env:\RESUME_AGENT_SMOKE_TEST -ErrorAction SilentlyContinue
 
-Compress-Archive -Path (Join-Path $AppDir "*") -DestinationPath $PortableZip -CompressionLevel Optimal
+& $Python deploy/windows/create_portable.py $AppDir $PortableZip
+Assert-LastExitCode "Create standards-compliant portable ZIP"
+
+$DependencyLines = @(& $Python -m pip list --format=freeze)
+Assert-LastExitCode "Record Windows dependency versions"
+Write-Utf8NoBomLf (
+  Join-Path $DistDir "windows-dependencies.txt"
+) $DependencyLines
 
 $InnoSetup = Find-InnoSetup
 if (-not $InnoSetup) {
@@ -136,9 +187,28 @@ if (-not $InnoSetup) {
 
 $Hashes = Get-ChildItem $DistDir -File | Where-Object {
   $_.Name -like "$AppName-*.zip" -or $_.Name -like "$AppName-Setup-*.exe"
-} | Get-FileHash -Algorithm SHA256
-$Hashes | ForEach-Object { "{0}  {1}" -f $_.Hash.ToLowerInvariant(), $_.Path } |
-  Set-Content -Encoding UTF8 (Join-Path $DistDir "windows-SHA256.txt")
+} | Sort-Object Name | Get-FileHash -Algorithm SHA256
+$HashLines = @($Hashes | ForEach-Object {
+  "{0}  {1}" -f $_.Hash.ToLowerInvariant(), (Split-Path $_.Path -Leaf)
+})
+if ($HashLines.Count -lt 2) {
+  throw "Expected both installer and portable archive before writing checksums"
+}
+foreach ($HashLine in $HashLines) {
+  if ($HashLine -notmatch '^([0-9a-f]{64})  (.+)$') {
+    throw "Invalid checksum line: $HashLine"
+  }
+  $ExpectedHash = $Matches[1]
+  $ArtifactPath = Join-Path $DistDir $Matches[2]
+  if (-not (Test-Path $ArtifactPath -PathType Leaf)) {
+    throw "Checksum references a missing artifact: $ArtifactPath"
+  }
+  $ActualHash = (Get-FileHash $ArtifactPath -Algorithm SHA256).Hash.ToLowerInvariant()
+  if ($ActualHash -ne $ExpectedHash) {
+    throw "Checksum verification failed for $ArtifactPath"
+  }
+}
+Write-Utf8NoBomLf (Join-Path $DistDir "windows-SHA256.txt") $HashLines
 
 Write-Host "Windows build completed:"
 Write-Host "  Portable: $PortableZip"

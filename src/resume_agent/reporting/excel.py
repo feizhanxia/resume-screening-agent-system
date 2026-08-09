@@ -11,14 +11,19 @@ from openpyxl.utils import get_column_letter
 
 from resume_agent.audit.coverage import AuditReport
 from resume_agent.domain.models import AnalysisResult, Criterion, ScanResult
+from resume_agent.safety import excel_safe_value
 
 HEADER_FILL = PatternFill("solid", fgColor="17324D")
 HEADER_FONT = Font(color="FFFFFF", bold=True)
 ACCENT_FILL = PatternFill("solid", fgColor="E6F4F1")
 
 
+def _append(sheet, values) -> None:
+    sheet.append([excel_safe_value(value) for value in values])
+
+
 def _write_header(sheet, values: list[str]) -> None:
-    sheet.append(values)
+    _append(sheet, values)
     for cell in sheet[1]:
         cell.fill = HEADER_FILL
         cell.font = HEADER_FONT
@@ -66,7 +71,7 @@ def export_excel(
         ("审计发现", "；".join(audit.findings)),
     ]
     for row in status_rows:
-        status.append(row)
+        _append(status, row)
 
     manifest = workbook.create_sheet("文件清单")
     _write_header(
@@ -75,7 +80,8 @@ def export_excel(
     )
     for candidate in scan.candidates:
         for file in candidate.files:
-            manifest.append(
+            _append(
+                manifest,
                 [
                     candidate.candidate_id,
                     candidate.display_name,
@@ -85,7 +91,7 @@ def export_excel(
                     file.material_role,
                     file.size,
                     file.content_hash,
-                ]
+                ],
             )
 
     candidate_sheet = workbook.create_sheet("候选人信息")
@@ -97,7 +103,8 @@ def export_excel(
     for candidate in scan.candidates:
         result = by_candidate.get(candidate.candidate_id)
         facts = result.facts if result else None
-        candidate_sheet.append(
+        _append(
+            candidate_sheet,
             [
                 candidate.candidate_id,
                 (facts.name if facts and facts.name else candidate.display_name),
@@ -107,13 +114,14 @@ def export_excel(
                 facts.work_years if facts else "",
                 "、".join(facts.skills) if facts else "",
                 facts.summary if facts else "",
-            ]
+            ],
         )
 
     criteria_sheet = workbook.create_sheet("筛选条件")
     _write_header(criteria_sheet, ["条件ID", "名称", "定义", "类型", "权重", "启用", "外部事实"])
     for item in criteria:
-        criteria_sheet.append(
+        _append(
+            criteria_sheet,
             [
                 item.criterion_id,
                 item.name,
@@ -122,7 +130,7 @@ def export_excel(
                 item.weight,
                 "是" if item.enabled else "否",
                 "是" if item.requires_external_fact else "否",
-            ]
+            ],
         )
 
     detail = workbook.create_sheet("判断明细")
@@ -136,7 +144,8 @@ def export_excel(
                 f"{e.relative_path} · {e.locator_kind} {e.locator_value}" for e in judgment.evidence
             )
             quotes = "\n".join(e.quote for e in judgment.evidence)
-            detail.append(
+            _append(
+                detail,
                 [
                     result.candidate_id,
                     judgment.criterion_id,
@@ -146,7 +155,7 @@ def export_excel(
                     locators,
                     quotes,
                     "是" if judgment.needs_external_fact else "否",
-                ]
+                ],
             )
 
     current = workbook.create_sheet("当前结果")
@@ -177,7 +186,8 @@ def export_excel(
         ]
         uncertain = sum(item.conclusion == "uncertain" for item in result.judgments)
         manual = manual_fields.get(result.candidate_id, {})
-        current.append(
+        _append(
+            current,
             [
                 rank,
                 result.candidate_id,
@@ -192,7 +202,7 @@ def export_excel(
                 manual.get("hr_status", ""),
                 manual.get("owner", ""),
                 manual.get("note", ""),
-            ]
+            ],
         )
     for row in current.iter_rows(min_row=2, max_col=4):
         row[3].fill = ACCENT_FILL
@@ -200,11 +210,11 @@ def export_excel(
     unassigned = workbook.create_sheet("未归属与异常")
     _write_header(unassigned, ["类型", "路径或信息"])
     for file in scan.unassigned_files:
-        unassigned.append(["未归属文件", str(file)])
+        _append(unassigned, ["未归属文件", str(file)])
     for error in scan.errors:
-        unassigned.append(["扫描错误", error])
+        _append(unassigned, ["扫描错误", error])
     for finding in audit.findings:
-        unassigned.append(["审计发现", finding])
+        _append(unassigned, ["审计发现", finding])
 
     for sheet in workbook.worksheets:
         _fit(sheet)

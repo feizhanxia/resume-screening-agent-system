@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 安全漏洞
+    url: https://github.com/feizhanxia/resume-screening-agent-system/security/advisories/new
+    about: 请通过私密漏洞报告提交，不要公开包含漏洞或敏感数据的 Issue。

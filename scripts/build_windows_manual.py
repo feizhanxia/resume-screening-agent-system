@@ -423,13 +423,12 @@ def build_manual() -> None:
         add_numbered(doc, text, decimal_num)
 
     add_heading(doc, "1. 首次启动与模型设置", 1, new_page=True)
-    add_screenshot(doc, "settings", 1, "设置 DeepSeek 凭据、模型与并行 Worker")
+    add_screenshot(doc, "settings", 1, "设置 DeepSeek 凭据、分析模型与并行 Worker")
     add_body(doc, "点击左下角“设置”打开配置窗口。API Key 留空表示继续使用系统凭据；新填写的 Key 会写入 Windows 系统凭据库，不会进入项目、数据库、Excel 或日志。")
     for text in (
-        "快速模型：用于条件解析和大多数候选人分析；填写账号实际可用的模型名称。",
-        "复核模型：用于高价值或不确定结果的复核；可与快速模型相同。",
+        "分析模型：用于条件解析和候选人分析；填写账号实际可用的模型名称。",
         "并行 Worker：推荐设置为 8。截图中的数值仅展示设置入口，不代表推荐默认值。",
-        "隐私：建议启用发送前脱敏，减少电话、邮箱和身份证号进入模型请求。",
+        "隐私：建议启用发送前脱敏。每次云端任务都会再次确认；自动脱敏可能遗漏姓名、电话、邮箱、地址或身份证号，使用前应取得合法授权。",
     ):
         add_bullet(doc, text, bullet_num)
     add_callout(doc, "安全要求", "不要继续使用曾经粘贴到聊天、邮件或公开文档中的旧 API Key；先在服务商控制台撤销并重新生成。", caution=True)

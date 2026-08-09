@@ -87,7 +87,7 @@ DOCX 使用 python-docx 和底层 XML 顺序遍历段落与表格，保留文档
 2. 默认使用 `deepseek-v4-flash`、关闭思考模式，要求 JSON 输出。
 3. 返回候选人事实、每项结论、置信度、证据页码、证据摘要和待查询事实。
 4. 用 pydantic 验证；JSON 为空、截断或结构不合法时重试，不能直接写数据库。
-5. 只有“不确定但业务价值高”的候选人进入 `deepseek-v4-pro` 思考模式复核。
+5. 超长材料会完整分块并合并结果；证据不足、跨分块冲突或无法对应本地原文的结论统一降级为“不确定”。
 
 不要让模型直接决定文件是否处理完成。完成状态由程序根据页覆盖、JSON 校验和条件覆盖计算。
 
@@ -194,15 +194,14 @@ DeepSeek 当前账户级并发远高于 8，但系统仍固定为 8，避免本�
 
 ```text
 base_url: https://api.deepseek.com
-快速模型: deepseek-v4-flash
-复核模型: deepseek-v4-pro
+分析模型: deepseek-v4-flash
 ```
 
 旧的 `deepseek-chat` 和 `deepseek-reasoner` 已在 2026-07-24 停用，不应写进新项目。
 
 结构化返回采用 JSON Output：设置 `response_format={"type":"json_object"}`，提示词明确包含 JSON 和完整示例，同时为输出预留足够 token。响应必须经过本地 schema 校验。
 
-默认分析关闭思考模式以降低延迟；复核时开启思考模式并保存最终判断，不把模型思维过程写入候选人报告。首版不需要 Function Calling；按需事实查询稳定后再引入工具调用。
+默认分析使用 JSON Output，不把模型思维过程写入候选人报告。首版不需要 Function Calling；按需事实查询稳定后再引入工具调用。
 
 ## 7. 推荐代码结构
 

@@ -23,6 +23,11 @@ async def _run(args) -> int:
     scan = scan_resume_root(resume_root)
     config = default_config()
     api_key = load_api_key()
+    if api_key and not args.allow_cloud:
+        raise SystemExit(
+            "检测到 DeepSeek API Key。CLI 云端分析必须显式添加 --allow-cloud；"
+            "PDF/DOCX 原文件不会上传，但脱敏后的提取文本会发送至配置的 API。"
+        )
     llm = DeepSeekClient(api_key, config) if api_key else None
     criteria = await compile_criteria(args.jd, args.requirements, llm)
     print(
@@ -56,6 +61,11 @@ def main() -> None:
     parser.add_argument("output_root")
     parser.add_argument("--jd", required=True)
     parser.add_argument("--requirements", default="")
+    parser.add_argument(
+        "--allow-cloud",
+        action="store_true",
+        help="明确同意把脱敏后的简历文本发送至配置的 DeepSeek API",
+    )
     args = parser.parse_args()
     raise SystemExit(asyncio.run(_run(args)))
 

@@ -12,7 +12,8 @@ _rapidocr_lock = threading.Lock()
 
 
 def find_tesseract() -> str | None:
-    configured = os.getenv("RESUME_AGENT_TESSERACT")
+    frozen = bool(getattr(sys, "frozen", False))
+    configured = None if frozen else os.getenv("RESUME_AGENT_TESSERACT")
     candidates = []
     if configured:
         candidates.append(Path(configured))
@@ -30,11 +31,12 @@ def find_tesseract() -> str | None:
     for candidate in candidates:
         if candidate.exists() and candidate.is_file():
             return str(candidate)
-    return shutil.which("tesseract")
+    return None if frozen else shutil.which("tesseract")
 
 
 def find_tessdata() -> Path | None:
-    configured = os.getenv("TESSDATA_PREFIX")
+    frozen = bool(getattr(sys, "frozen", False))
+    configured = None if frozen else os.getenv("TESSDATA_PREFIX")
     candidates = []
     if configured:
         candidates.append(Path(configured))

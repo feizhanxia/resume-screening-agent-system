@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import zipfile
 from pathlib import Path
 
 from docx import Document
@@ -9,6 +10,22 @@ from docx.text.paragraph import Paragraph
 from resume_agent.domain.models import ExtractedUnit, ExtractionResult, ExtractionStatus
 
 EXTRACTOR_VERSION = "python-docx-ordered-1"
+MAX_ARCHIVE_ENTRIES = 10_000
+MAX_UNCOMPRESSED_BYTES = 100 * 1024 * 1024
+MAX_COMPRESSION_RATIO = 1_000
+
+
+def _preflight_archive(path: Path) -> None:
+    with zipfile.ZipFile(path) as archive:
+        entries = archive.infolist()
+        if len(entries) > MAX_ARCHIVE_ENTRIES:
+            raise ValueError("DOCX 压缩包文件数量超过安全上限")
+        compressed = sum(item.compress_size for item in entries)
+        uncompressed = sum(item.file_size for item in entries)
+        if uncompressed > MAX_UNCOMPRESSED_BYTES:
+            raise ValueError("DOCX 解压后大小超过 100 MB 的安全上限")
+        if compressed and uncompressed / compressed > MAX_COMPRESSION_RATIO:
+            raise ValueError("DOCX 压缩比异常，疑似压缩炸弹")
 
 
 def iter_blocks(document: Document):
@@ -26,6 +43,7 @@ def iter_blocks(document: Document):
 
 def extract_docx(path: Path, file_id: str) -> ExtractionResult:
     try:
+        _preflight_archive(path)
         document = Document(str(path))
         units: list[ExtractedUnit] = []
         for kind, index, block in iter_blocks(document):

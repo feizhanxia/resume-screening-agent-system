@@ -51,6 +51,7 @@ from resume_agent.domain.models import (
 from resume_agent.llm.deepseek import DeepSeekClient
 from resume_agent.materials.copying import copy_candidate_packages
 from resume_agent.reporting.excel import export_excel
+from resume_agent.safety import escape_rich_text
 from resume_agent.scanning.scanner import default_output_dir, scan_resume_root
 from resume_agent.storage.database import Database
 from resume_agent.workers.engine import ScreeningEngine
@@ -205,15 +206,13 @@ class SettingsDialog(QDialog):
         self.key.setEchoMode(QLineEdit.EchoMode.Password)
         self.key.setPlaceholderText("留空表示保持现有系统凭据")
         self.model = QLineEdit(config.model)
-        self.audit_model = QLineEdit(config.audit_model)
         self.concurrency = QSpinBox()
         self.concurrency.setRange(1, 16)
         self.concurrency.setValue(config.worker_count)
-        self.redact = QCheckBox("发送前脱敏电话、邮箱和身份证号")
+        self.redact = QCheckBox("发送前脱敏姓名、联系方式、地址和身份证号")
         self.redact.setChecked(config.redact_pii)
         form.addRow("DeepSeek API Key", self.key)
-        form.addRow("快速模型", self.model)
-        form.addRow("复核模型", self.audit_model)
+        form.addRow("分析模型", self.model)
         form.addRow("并行 Worker", self.concurrency)
         form.addRow("隐私", self.redact)
         layout.addLayout(form)
@@ -234,7 +233,6 @@ class SettingsDialog(QDialog):
         return config.model_copy(
             update={
                 "model": self.model.text().strip() or config.model,
-                "audit_model": self.audit_model.text().strip() or config.audit_model,
                 "worker_count": count,
                 "extraction_concurrency": count,
                 "analysis_concurrency": count,
@@ -371,7 +369,7 @@ class MainWindow(QMainWindow):
         self.requirements.setMaximumHeight(110)
         layout.addWidget(self.requirements)
         actions = QHBoxLayout()
-        privacy = QLabel("原文件仅在本机处理；发送模型前默认脱敏联系方式。")
+        privacy = QLabel("原文件仅在本机处理；发送模型前默认脱敏常见个人信息。")
         privacy.setObjectName("PageSub")
         self.compile_button = QPushButton("解析筛选条件 →")
         self.compile_button.setObjectName("Primary")
@@ -545,6 +543,7 @@ class MainWindow(QMainWindow):
         self.evidence = QTextBrowser()
         self.evidence.setMinimumWidth(360)
         self.evidence.setOpenExternalLinks(False)
+        self.evidence.setOpenLinks(False)
         splitter.addWidget(self.results_table)
         splitter.addWidget(self.evidence)
         splitter.setStretchFactor(0, 3)
@@ -734,6 +733,18 @@ class MainWindow(QMainWindow):
             if answer != QMessageBox.StandardButton.Yes:
                 self._open_settings()
                 return
+        else:
+            answer = QMessageBox.question(
+                self,
+                "确认云端语义分析",
+                "PDF/DOCX 原文件不会上传，但提取后的文本会在默认脱敏姓名、联系方式、地址"
+                "和身份证号后发送至 DeepSeek API。自动脱敏可能遗漏信息，请确认你有权处理"
+                "这些候选人材料并同意继续。",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer != QMessageBox.StandardButton.Yes:
+                return
         self.criteria = criteria
         output = Path(output_text).expanduser().resolve()
         self.workspace = WorkspacePaths.create(output)
@@ -897,11 +908,13 @@ class MainWindow(QMainWindow):
             "not_recommended": "不推荐",
             "review": "待复核",
         }
+        display_name = result.facts.name or self._candidate_name(result.candidate_id)
+        recommendation = recommendation_labels.get(result.recommendation, result.recommendation)
         parts = [
-            f"<h2>{result.facts.name or self._candidate_name(result.candidate_id)}</h2>",
+            f"<h2>{escape_rich_text(display_name)}</h2>",
             f"<p><b>{result.score:.1f} 分 · "
-            f"{recommendation_labels.get(result.recommendation, result.recommendation)}</b></p>",
-            f"<p>{result.overall_reason}</p><hr>",
+            f"{escape_rich_text(recommendation)}</b></p>",
+            f"<p>{escape_rich_text(result.overall_reason)}</p><hr>",
         ]
         labels = {"match": "符合", "no_match": "不符合", "uncertain": "不确定"}
         colors = {"match": "#0D7478", "no_match": "#A33C36", "uncertain": "#A36C17"}
@@ -910,13 +923,17 @@ class MainWindow(QMainWindow):
             title = criterion.name if criterion else judgment.criterion_id
             conclusion = str(judgment.conclusion)
             parts.append(
-                f"<h3>{title} <span style='color:{colors.get(conclusion, '#555')};'>"
-                f"{labels.get(conclusion, conclusion)}</span></h3><p>{judgment.reason}</p>"
+                f"<h3>{escape_rich_text(title)} "
+                f"<span style='color:{colors.get(conclusion, '#555')};'>"
+                f"{escape_rich_text(labels.get(conclusion, conclusion))}</span></h3>"
+                f"<p>{escape_rich_text(judgment.reason)}</p>"
             )
             for evidence in judgment.evidence:
                 parts.append(
-                    f"<blockquote><b>{evidence.relative_path}</b> · {evidence.locator_kind} "
-                    f"{evidence.locator_value}<br>{evidence.quote}</blockquote>"
+                    f"<blockquote><b>{escape_rich_text(evidence.relative_path)}</b> · "
+                    f"{escape_rich_text(evidence.locator_kind)} "
+                    f"{escape_rich_text(evidence.locator_value)}<br>"
+                    f"{escape_rich_text(evidence.quote)}</blockquote>"
                 )
             if judgment.needs_external_fact:
                 parts.append("<p style='color:#A36C17'>需要可信外部事实表核验</p>")

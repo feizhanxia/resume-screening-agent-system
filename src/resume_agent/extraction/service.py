@@ -11,6 +11,8 @@ from resume_agent.extraction.pdf import EXTRACTOR_VERSION as PDF_VERSION
 from resume_agent.extraction.pdf import extract_pdf
 from resume_agent.storage.database import Database
 
+MAX_EXTRACTABLE_BYTES = 100 * 1024 * 1024
+
 
 class ExtractionService:
     def __init__(
@@ -38,7 +40,18 @@ class ExtractionService:
             return cached
         async with self.semaphore:
             suffix = file.absolute_path.suffix.lower()
-            if suffix == ".pdf":
+            if suffix in {".pdf", ".docx", ".png", ".jpg", ".jpeg", ".tif", ".tiff"} and (
+                file.size > MAX_EXTRACTABLE_BYTES
+            ):
+                result = ExtractionResult(
+                    file_id=file.file_id,
+                    status=ExtractionStatus.FAILED,
+                    expected_units=1,
+                    covered_units=0,
+                    error="文件超过 100 MB 的自动提取安全上限，需要人工复核",
+                    extractor_version=version,
+                )
+            elif suffix == ".pdf":
                 result = await asyncio.to_thread(
                     extract_pdf, file.absolute_path, file.file_id, self.ocr_languages
                 )

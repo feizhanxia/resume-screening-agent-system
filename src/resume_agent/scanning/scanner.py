@@ -10,6 +10,41 @@ from resume_agent.domain.models import CandidatePackage, MaterialFile, ScanResul
 
 SUPPORTED_SUFFIXES = {".pdf", ".docx", ".png", ".jpg", ".jpeg", ".tif", ".tiff"}
 IGNORED_NAMES = {".DS_Store", "Thumbs.db", "desktop.ini"}
+MAX_FILES_PER_CANDIDATE = 2_000
+MAX_FILE_BYTES = 250 * 1024 * 1024
+MAX_TOTAL_BYTES_PER_CANDIDATE = 5 * 1024 * 1024 * 1024
+MAX_RELATIVE_DEPTH = 20
+
+
+def _is_link_like(path: Path) -> bool:
+    if path.is_symlink():
+        return True
+    is_junction = getattr(path, "is_junction", None)
+    return bool(is_junction and is_junction())
+
+
+def ensure_safe_member_path(path: Path, root: Path) -> Path:
+    """Resolve an existing member without following links outside its candidate root."""
+    root = root.resolve(strict=True)
+    absolute = path.absolute()
+    try:
+        if os.path.commonpath((str(absolute), str(root))) != str(root):
+            raise ValueError("路径不在候选人目录内")
+    except ValueError as exc:
+        raise ValueError("路径不在候选人目录内") from exc
+
+    current = absolute
+    while current != root:
+        if _is_link_like(current):
+            raise ValueError("拒绝读取符号链接或 Windows Junction")
+        if root not in current.parents:
+            raise ValueError("路径不在候选人目录内")
+        current = current.parent
+
+    resolved = absolute.resolve(strict=True)
+    if os.path.commonpath((str(resolved), str(root))) != str(root):
+        raise ValueError("解析后的路径越过候选人目录")
+    return resolved
 
 
 def sha256_file(path: Path, chunk_size: int = 1024 * 1024) -> str:
@@ -72,21 +107,42 @@ def scan_resume_root(root: Path) -> ScanResult:
         if not entry.is_dir():
             continue
 
+        try:
+            ensure_safe_member_path(entry, root)
+        except (OSError, ValueError) as exc:
+            errors.append(f"{entry}: {exc}")
+            continue
+
         relative_dir = entry.relative_to(root).as_posix()
         candidate_id = _candidate_id(root, relative_dir)
         files: list[MaterialFile] = []
+        discovered_files = 0
+        total_bytes = 0
         for path in sorted(entry.rglob("*"), key=lambda item: item.as_posix().casefold()):
             if not path.is_file() or path.name in IGNORED_NAMES or path.name.startswith("~$"):
                 continue
             relative_path = path.relative_to(entry).as_posix()
             try:
-                stat = path.stat()
-                content_hash = sha256_file(path)
+                safe_path = ensure_safe_member_path(path, entry)
+                stat = safe_path.stat()
+                discovered_files += 1
+                if discovered_files > MAX_FILES_PER_CANDIDATE:
+                    raise ValueError(
+                        f"候选人材料超过 {MAX_FILES_PER_CANDIDATE} 个文件的安全上限"
+                    )
+                if len(Path(relative_path).parts) > MAX_RELATIVE_DEPTH:
+                    raise ValueError(f"材料目录深度超过 {MAX_RELATIVE_DEPTH} 层的安全上限")
+                if stat.st_size > MAX_FILE_BYTES:
+                    raise ValueError(f"单个材料超过 {MAX_FILE_BYTES // 1024 // 1024} MB")
+                if total_bytes + stat.st_size > MAX_TOTAL_BYTES_PER_CANDIDATE:
+                    raise ValueError("候选人材料总大小超过 5 GB 的安全上限")
+                content_hash = sha256_file(safe_path)
+                total_bytes += stat.st_size
                 files.append(
                     MaterialFile(
                         file_id="file_" + content_hash[:24],
                         candidate_id=candidate_id,
-                        absolute_path=path,
+                        absolute_path=safe_path,
                         relative_path=relative_path,
                         media_type=detect_media_type(path),
                         material_role=classify_role(path),
@@ -95,7 +151,7 @@ def scan_resume_root(root: Path) -> ScanResult:
                         mtime_ns=stat.st_mtime_ns,
                     )
                 )
-            except (OSError, PermissionError) as exc:
+            except (OSError, PermissionError, ValueError) as exc:
                 errors.append(f"{path}: {exc}")
 
         package_digest = hashlib.sha256()

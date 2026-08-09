@@ -1,109 +1,107 @@
-# 本地优先简历筛选智能体系统
+<div align="center">
 
-这是一个独立于 WorkBuddy 的桌面应用项目，用于批量扫描本地 PDF/DOCX 简历、增量提取、按动态岗位条件筛选、审计覆盖率、导出 Excel，并把筛选后的候选人材料安全复制到指定目录。产品直接采用原生桌面 GUI，不依赖浏览器或本地 Web 服务。
+# 简历筛选工作台
 
-当前目录已包含可运行的桌面应用 MVP、核心处理引擎、测试和跨平台构建脚本。
+**把数百份散乱的 PDF / DOCX 简历，变成可核查、可筛选、可交付的候选人清单。**
 
-当前构建产物与验收结果见 [交付状态](docs/BUILD_STATUS.md)。
+本地优先 · 8 路并行 · 动态筛选条件 · Excel 证据链 · Windows 桌面应用
 
-## 已实现能力
+[![CI](https://github.com/feizhanxia/resume-screening-agent-system/actions/workflows/ci.yml/badge.svg)](https://github.com/feizhanxia/resume-screening-agent-system/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/feizhanxia/resume-screening-agent-system?include_prereleases&label=Windows)](https://github.com/feizhanxia/resume-screening-agent-system/releases)
+[![License](https://img.shields.io/github/license/feizhanxia/resume-screening-agent-system)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 
-- 原生 PySide6 桌面界面：任务配置、条件确认、八路进度、结果/证据查看。
-- 每个一级子目录作为一个候选人包，递归登记全部普通文件和内容哈希。
-- PDF 逐页提取、图片型页面按需离线 OCR、DOCX 段落/表格顺序提取。
-- 其他格式使用 `inventory_only` 终态，仍进入覆盖核查和材料复制。
-- DeepSeek JSON 条件编译和候选人分析；无 Key 时安全降级为“待复核”。
-- 8 个 Worker、全局 8 路提取/分析信号量、暂停、继续、取消和内容缓存。
-- SQLite WAL、条件/材料指纹增量复用、覆盖审计和异常可见。
-- 七张表 Excel、证据定位、结果过滤和整包材料复制/哈希校验。
-- API Key 仅保存到系统钥匙串，模型请求默认脱敏联系方式。
+[下载 Windows 版](https://github.com/feizhanxia/resume-screening-agent-system/releases) · [图文使用指南](docs/WINDOWS_GUIDE.md) · [参与贡献](CONTRIBUTING.md)
+
+</div>
+
+![候选人筛选结果界面](docs/assets/windows-guide/05-recommended.png)
+
+<div align="center"><sub>界面示例使用合成候选人数据。</sub></div>
+
+## 它解决什么问题
+
+选择一个简历目录，粘贴 JD 和补充要求，应用会完整登记每位候选人的材料，离线提取 PDF / DOCX / 图片内容，再用 DeepSeek 进行语义分析。最终得到带原文证据的 Excel，并可一键整理入选候选人的完整材料包。
+
+- **不漏文件**：目录清单、提取状态、分析状态和结果行数相互核对；加密、空白、图片型和读取失败文件都会显式标记。
+- **不是关键词搜索**：岗位条件在每次任务中动态拆解，支持“最接近岗位的人选”和不确定项人工复核。
+- **增量且并行**：8 个 Worker 处理候选人，新文件或新条件优先复用已提取文本，不重复解析全部材料。
+- **结果可追溯**：每项判断保留来源文件、页码/段落和原文摘录；模型不能凭空生成有效证据。
+- **交付一步完成**：生成多工作表 Excel，并按当前筛选结果复制候选人的全部简历与补充材料。
+
+## 4 步开始
+
+1. 从 [Releases](https://github.com/feizhanxia/resume-screening-agent-system/releases) 下载 `Setup-x64.exe`，或解压 `portable-x64.zip` 后运行 `ResumeScreeningAgent.exe`。
+2. 在设置页保存一枚你自己的 DeepSeek API Key；密钥进入 Windows 凭据管理器，不写入项目文件。
+3. 选择简历根目录和输出目录，粘贴 JD 与筛选要求，确认自动拆解的条件。
+4. 开始处理，在结果页核查证据、导出 Excel，并整理入选候选人的材料。
+
+推荐目录结构：
+
+```text
+简历根目录/
+├── 张三/
+│   ├── 简历.pdf
+│   └── 作品集.docx
+└── 李四/
+    ├── 中文简历.docx
+    └── 论文.pdf
+```
+
+每个一级子目录代表一位候选人；其中的 PDF、DOCX、图片及其他补充材料都会进入清单，原目录不会被修改。
+
+> 当前公开版是未签名 Beta。Windows 可能显示 SmartScreen 提示；请只从本仓库 Release 下载并核对 `windows-SHA256.txt`。项目尚未提供官方商业支持，不建议直接用于无人复核的招聘决策。
+
+## 隐私边界
+
+原始文件、提取缓存、SQLite、Excel 和整理后的材料始终保存在本机。配置 DeepSeek 后，应用会在每次任务前请求确认，仅发送完成基础脱敏的提取文本、JD 和筛选条件；绝对路径和原文件名不会发送。自动脱敏无法保证识别所有个人信息，使用者仍需取得合法授权。
+
+不配置 API Key 时可以完成扫描和离线提取，但语义判断会标为待复核。详见 [隐私说明](PRIVACY.md) 与 [安全策略](SECURITY.md)。
+
+## 输出与核查
+
+- 候选人总表、条件判断、证据、文件清单、异常与覆盖审计等 Excel 工作表
+- 推荐 / 不推荐 / 待复核状态以及接近度评分
+- 文件级提取终态和条件级判断终态
+- 可恢复的 SQLite 状态与内容缓存
+- 经哈希校验的候选人材料副本
+
+外部事实，例如高校排名、院校类别和论文层级，不会仅凭模型记忆强判；当前会标为需要外部核查。这是有意保留的人审边界。
 
 ## 源码运行
 
+需要 Python 3.12：
+
 ```bash
-cd resume-screening-agent-system
-python3.12 -m venv .venv
-source .venv/bin/activate              # Windows: .venv\Scripts\activate
-python -m pip install -e '.[dev]'
+python -m venv .venv
+.venv\Scripts\activate
+python -m pip install -e ".[dev]"
 python -m resume_agent.app
 ```
 
-测试：
+质量检查：
 
 ```bash
+ruff check src tests
 pytest
 ```
 
-也可以用诊断 CLI：
+Windows 本地打包：
 
-```bash
-resume-agent /path/to/resumes /path/to/output --jd "岗位要求" --requirements "补充条件"
+```powershell
+powershell -ExecutionPolicy Bypass -File deploy/build_windows.ps1 -RequireInstaller
 ```
 
-## 打包
+版本 tag 会通过 GitHub Actions 生成安装器、便携版、依赖清单、SHA-256 和 Release。架构说明见 [总体架构](docs/ARCHITECTURE.md) 与 [标准 Agent Loop](docs/AGENT_LOOP.md)。
 
-- macOS：`bash deploy/build_macos.sh`
-- Windows x64：在 Windows 10/11 机器运行 `powershell -ExecutionPolicy Bypass -File deploy/build_windows.ps1`
+## 项目状态
 
-Windows 构建会执行代码检查、自动化测试和冻结程序 OCR 自检，并生成：
+这是 `0.1.x` Beta，欢迎提交使用反馈、合成测试样本和改进 PR。近期重点是更强的复杂版式覆盖、可选的本地模型后端、外部事实核查适配器，以及可复现的批量性能基准。完整变化见 [CHANGELOG](CHANGELOG.md)。
 
-- `dist/ResumeScreeningAgent-portable-x64.zip`：免安装便携版。
-- `dist/ResumeScreeningAgent-Setup-x64.exe`：Inno Setup 用户级安装器；需要构建机装有 Inno Setup 6。安装后的产品名和快捷方式仍显示“简历筛选工作台”。
-- `dist/windows-SHA256.txt`：两个交付物的 SHA-256。
+如果它解决了你的批量简历整理问题，欢迎点一个 Star，让更多需要本地优先招聘工具的人看到它。
 
-仓库同时包含 `.github/workflows/build-windows.yml`。将源码放入私有 GitHub 仓库后可手动触发 Windows 2022 构建，无需自备 Windows 电脑；工作流只上传构建产物，不保存 API Key 或简历。
+---
 
-两个系统必须分别构建。应用优先使用 Tesseract，并内置 RapidOCR + ONNX Runtime 作为完全离线兜底，因此目标机器无需另装 OCR。正式公开分发前仍需完成代码签名、公证或 Windows 安装器签名；签名证书不能由源码仓库代替。
+<sub>English: A local-first Windows desktop app that turns folders of PDF/DOCX resumes into evidence-backed, reviewable screening results. The UI is currently Chinese; English localization is planned.</sub>
 
-## 核心设计
-
-- 一个确定性协调器管理候选人目录、文件、条件、队列、重试和验收。
-- 简历根目录下每个一级子目录代表一名候选人；目录内全部 PDF/DOCX 和补充材料共同形成候选人档案包。
-- 八个 Worker 按候选人档案包并行处理；同一候选人只由一个 Worker 独占，不创建十六个 Agent。
-- PDF/DOCX 原文件、提取文本、SQLite、JSON 和 Excel 全部保存在本机。
-- DeepSeek API 只处理需要语义理解的文本；文件扫描、哈希、状态和覆盖率由代码计算。
-- SQLite 是机器事实源，Excel 是可查看和人工维护的结果视图。
-- 新条件优先使用已缓存文本和事实，不重新读取原始文档。
-- 不确定、读取失败、图片型、空白和加密文件都有显式终态，不能静默漏掉。
-
-## 推荐阅读顺序
-
-1. [产品需求与最终技术路线](docs/PRODUCT_TECH_ROUTE.md)
-2. [标准 Agent Loop](docs/AGENT_LOOP.md)
-3. [总体架构](docs/ARCHITECTURE.md)
-4. [分阶段开发计划](docs/IMPLEMENTATION_PLAN.md)
-5. [安全与隐私](docs/SECURITY.md)
-6. [Windows 图文使用手册](docs/简历筛选工作台-Windows版使用手册.docx)
-
-## 最终使用方式
-
-用户安装并打开应用后，通过界面依次完成：选择简历目录和输出目录、粘贴 JD 与筛选要求、确认自动拆解的条件、启动八路处理、筛选结果、导出 Excel、整理入选候选人材料。
-
-CLI 仅保留为开发测试和故障诊断接口，不要求最终用户使用命令行。
-
-## 推荐技术栈
-
-- Python 3.12
-- PySide6-Essentials + Qt Widgets：原生桌面 GUI
-- Typer：内部诊断 CLI
-- SQLite WAL + SQLAlchemy 2：本地状态与结构化数据
-- pypdfium2：PDF 页数、文本和页面渲染
-- python-docx：DOCX 段落、表格和文档结构读取
-- pydantic：输入输出与模型 JSON 校验
-- OpenAI Python SDK：调用 DeepSeek 的 OpenAI 兼容接口
-- openpyxl：单写入者生成和刷新 Excel
-- keyring：把 API Key 保存到系统凭据库
-- pyside6-deploy/Nuitka：冻结程序；按操作系统生成安装包
-
-如决定把产品按 AGPL 开源或购买 Artifex 商业许可，可将 PDF 引擎替换为 PyMuPDF；专有分发版本默认使用许可更宽松的 pypdfium2。
-- pytest、ruff、mypy：测试与质量控制
-
-## 密钥配置
-
-复制 `.env.example` 为 `.env`，写入重新生成的 Key。`.env` 已被 Git 忽略，不要把真实 Key 写进源码、日志、测试样例或命令历史。
-
-DeepSeek 官方接口地址和当前模型名称见：
-
-- https://api-docs.deepseek.com/quick_start/pricing
-- https://api-docs.deepseek.com/guides/json_mode/
-- https://api-docs.deepseek.com/guides/thinking_mode
+MIT © 2026 [feizhanxia](https://github.com/feizhanxia)

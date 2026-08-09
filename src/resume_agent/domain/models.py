@@ -162,7 +162,6 @@ class RunConfig(BaseModel):
     max_loop_steps: int = Field(default=20, ge=5, le=100)
     excel_flush_every: int = Field(default=20, ge=1, le=200)
     model: str = "deepseek-v4-flash"
-    audit_model: str = "deepseek-v4-pro"
     api_base: str = "https://api.deepseek.com"
     timeout_seconds: int = Field(default=120, ge=10, le=600)
     redact_pii: bool = True
