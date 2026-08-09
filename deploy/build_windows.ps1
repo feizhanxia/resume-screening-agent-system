@@ -165,7 +165,8 @@ if ($SmokeProcess.ExitCode -ne 0) {
 Remove-Item Env:\QT_QPA_PLATFORM -ErrorAction SilentlyContinue
 Remove-Item Env:\RESUME_AGENT_SMOKE_TEST -ErrorAction SilentlyContinue
 
-Compress-Archive -Path (Join-Path $AppDir "*") -DestinationPath $PortableZip -CompressionLevel Optimal
+& $Python deploy/windows/create_portable.py $AppDir $PortableZip
+Assert-LastExitCode "Create standards-compliant portable ZIP"
 
 $DependencyLines = @(& $Python -m pip list --format=freeze)
 Assert-LastExitCode "Record Windows dependency versions"
