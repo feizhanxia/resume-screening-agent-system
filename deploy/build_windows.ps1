@@ -106,8 +106,10 @@ if (-not (Test-Path $Executable)) {
 
 $env:QT_QPA_PLATFORM = "offscreen"
 $env:RESUME_AGENT_SMOKE_TEST = "1"
-& $Executable
-Assert-LastExitCode "Packaged Windows application/OCR smoke test"
+$SmokeProcess = Start-Process -FilePath $Executable -Wait -PassThru
+if ($SmokeProcess.ExitCode -ne 0) {
+  throw "Packaged Windows application/OCR smoke test failed with exit code $($SmokeProcess.ExitCode)"
+}
 Remove-Item Env:\QT_QPA_PLATFORM -ErrorAction SilentlyContinue
 Remove-Item Env:\RESUME_AGENT_SMOKE_TEST -ErrorAction SilentlyContinue
 
