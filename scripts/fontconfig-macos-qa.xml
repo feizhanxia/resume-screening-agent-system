@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "fonts.dtd">
+<fontconfig>
+  <dir>/System/Library/Fonts</dir>
+  <dir>/System/Library/Fonts/Supplemental</dir>
+  <dir>/Library/Fonts</dir>
+  <dir>~/Library/Fonts</dir>
+  <cachedir>/private/tmp/resume-agent-font-cache</cachedir>
+  <match target="pattern">
+    <test name="family" qual="any">
+      <string>Microsoft YaHei</string>
+    </test>
+    <edit name="family" mode="assign" binding="strong">
+      <string>Arial Unicode MS</string>
+    </edit>
+  </match>
+</fontconfig>

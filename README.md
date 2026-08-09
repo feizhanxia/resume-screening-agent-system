@@ -73,6 +73,7 @@ Windows 构建会执行代码检查、自动化测试和冻结程序 OCR 自检�
 3. [总体架构](docs/ARCHITECTURE.md)
 4. [分阶段开发计划](docs/IMPLEMENTATION_PLAN.md)
 5. [安全与隐私](docs/SECURITY.md)
+6. [Windows 图文使用手册](docs/简历筛选工作台-Windows版使用手册.docx)
 
 ## 最终使用方式
 
