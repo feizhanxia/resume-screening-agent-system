@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Add a dedicated fast JD-compilation path with three bounded attempts, a 60-second deadline,
+  concise model output, and an explicit editable local-draft fallback.
+- Reuse the most recent successful JD result from privacy-conscious local settings without storing
+  the original JD text.
+
 ## 0.1.0-beta.4
 
 - Deduplicate identical candidate files before extraction and model analysis while preserving every

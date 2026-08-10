@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import random
+from collections.abc import Callable
 from typing import Any, Literal, cast
 
 from openai import AsyncOpenAI
@@ -23,8 +25,15 @@ from resume_agent.domain.models import (
 from resume_agent.llm.privacy import redact_pii
 
 
+class CriterionDraft(BaseModel):
+    name: str
+    definition: str
+    kind: Literal["required", "scored", "bonus"] = "scored"
+    requires_external_fact: bool = False
+
+
 class CriteriaPayload(BaseModel):
-    criteria: list[Criterion]
+    criteria: list[CriterionDraft]
 
 
 class ModelAnalysisPayload(BaseModel):
@@ -77,11 +86,14 @@ class ModelCallError(RuntimeError):
         super().__init__(f"模型调用失败：{error_type}{suffix}")
 
 
-SYSTEM_CRITERIA = """你是招聘条件结构化助手。只拆解用户给定的JD，不添加JD没有的条件。
-输出一个JSON对象，唯一顶层字段为criteria。每个条件包含criterion_id、name、definition、kind、
-weight、enabled、requires_external_fact、version。kind只能是required、scored、bonus。
-硬性门槛与评分偏好必须分开；涉及学校排名、985/211/双一流、论文级别等需外部名单核验的条件，
-requires_external_fact=true。criterion_id使用稳定的英文点分标识。最多30项。"""
+SYSTEM_CRITERIA = """你是招聘条件结构化助手。只拆解用户给出的JD，不增加JD中没有的条件。
+输出JSON对象，唯一顶层字段为criteria。每项只包含name、definition、kind、
+requires_external_fact；kind只能是required、scored、bonus。将同一句中的学历、专业、院校、技能、
+经验等独立要求拆成可分别核验的条件；名称不超过20个汉字，定义不超过80个汉字，最多24项。
+硬性门槛与偏好必须分开；学校排名、985/211/双一流、论文级别等依赖外部名单的条件设置
+requires_external_fact=true。不要输出Markdown。
+示例JSON：{"criteria":[{"name":"Python能力","definition":"熟练使用Python进行模型开发",
+"kind":"required","requires_external_fact":false}]}"""
 
 
 SYSTEM_ANALYZE = """你是谨慎的简历证据分析助手。只可使用给出的候选人材料，不使用常识补全事实，
@@ -104,6 +116,12 @@ ROUTING_PREVIEW_PER_FILE = 4_000
 ROUTING_PREVIEW_TOTAL = 30_000
 NON_PRIMARY_ANALYSIS_LIMIT = 8_000
 PUBLICATION_MAX_PAGES = 2
+JD_MAX_TOKENS = 3_000
+JD_REQUEST_TIMEOUT_SECONDS = 18
+JD_MAX_ATTEMPTS = 3
+JD_RETRY_DELAYS = (1.0, 2.0)
+JD_MAX_CRITERIA = 24
+JD_TOTAL_TIMEOUT_SECONDS = 60
 
 ROLE_PRIORITY = {
     "other": 0,
@@ -140,13 +158,29 @@ class DeepSeekClient:
         )
         self.semaphore = asyncio.Semaphore(config.analysis_concurrency)
 
-    async def _json_chat(self, *, model: str, system: str, user: str) -> dict[str, Any]:
+    async def _json_chat(
+        self,
+        *,
+        model: str,
+        system: str,
+        user: str,
+        max_tokens: int = 8_000,
+        timeout_seconds: int | None = None,
+        max_attempts: int | None = None,
+        retry_delays: tuple[float, ...] | None = None,
+        parser: Callable[[dict[str, Any]], Any] | None = None,
+        retryable: Callable[[Exception], bool] | None = None,
+        on_attempt: Callable[[int, int], None] | None = None,
+    ) -> Any:
         last_error: Exception | None = None
         last_diagnostics: dict[str, Any] = {"error_type": "UnknownError"}
-        for attempt in range(self.config.max_retries_per_resume + 1):
+        attempts = max_attempts or (self.config.max_retries_per_resume + 1)
+        for attempt in range(attempts):
             content = ""
             finish_reason = None
             try:
+                if on_attempt:
+                    on_attempt(attempt + 1, attempts)
                 async with self.semaphore:
                     response = await self.client.chat.completions.create(
                         model=model,
@@ -157,8 +191,11 @@ class DeepSeekClient:
                         response_format={"type": "json_object"},
                         extra_body={"thinking": {"type": "disabled"}},
                         temperature=0,
-                        max_tokens=8000,
+                        max_tokens=max_tokens,
+                        timeout=timeout_seconds or self.config.timeout_seconds,
                     )
+                if not response.choices:
+                    raise ValueError("模型没有返回候选结果")
                 choice = response.choices[0]
                 finish_reason = choice.finish_reason
                 content = choice.message.content or ""
@@ -170,7 +207,8 @@ class DeepSeekClient:
                     normalized = "\n".join(lines[1:-1]).strip()
                 if not normalized:
                     raise json.JSONDecodeError("模型返回空内容", content, 0)
-                return json.loads(normalized)
+                payload = json.loads(normalized)
+                return parser(payload) if parser else payload
             except Exception as exc:
                 last_error = exc
                 last_diagnostics = {
@@ -180,21 +218,73 @@ class DeepSeekClient:
                     "response_chars": len(content),
                     "attempts": attempt + 1,
                 }
-                if attempt >= self.config.max_retries_per_resume:
+                if attempt >= attempts - 1 or (retryable and not retryable(exc)):
                     break
-                await asyncio.sleep(min(8, 1.2 * (2**attempt)) + random.random())
+                if retry_delays is None:
+                    delay = min(8, 1.2 * (2**attempt)) + random.random()
+                else:
+                    delay = retry_delays[min(attempt, len(retry_delays) - 1)]
+                await asyncio.sleep(delay)
         raise ModelCallError(last_diagnostics) from last_error
 
-    async def compile_criteria(self, jd: str, requirements: str) -> list[Criterion]:
-        payload = await self._json_chat(
+    @staticmethod
+    def _criteria_retryable(exc: Exception) -> bool:
+        status = getattr(exc, "status_code", None)
+        if status in {401, 403}:
+            return False
+        if isinstance(status, int):
+            return status in {408, 429} or status >= 500
+        if isinstance(exc, (ValueError, TimeoutError, ConnectionError, OSError)):
+            return True
+        return type(exc).__name__ in {"APIConnectionError", "APITimeoutError"}
+
+    @staticmethod
+    def _parse_criteria(payload: dict[str, Any]) -> list[Criterion]:
+        drafts = CriteriaPayload.model_validate(payload).criteria[:JD_MAX_CRITERIA]
+        if not drafts:
+            raise ValueError("模型未生成筛选条件")
+        criteria = []
+        for index, draft in enumerate(drafts, 1):
+            name = " ".join(draft.name.split())[:20]
+            definition = " ".join(draft.definition.split())[:80]
+            if not name or not definition:
+                raise ValueError("模型生成了空筛选条件")
+            seed = f"{name}\n{definition}"
+            digest = hashlib.sha1(
+                seed.encode("utf-8"), usedforsecurity=False
+            ).hexdigest()[:10]
+            weight = 15 if draft.kind == "required" else (8 if draft.kind == "bonus" else 10)
+            criteria.append(
+                Criterion(
+                    criterion_id=f"criterion.{index:02d}.{digest}",
+                    name=name,
+                    definition=definition,
+                    kind=draft.kind,
+                    weight=weight,
+                    requires_external_fact=draft.requires_external_fact,
+                    version=2,
+                )
+            )
+        return criteria
+
+    async def compile_criteria(
+        self,
+        jd: str,
+        requirements: str,
+        on_attempt: Callable[[int, int], None] | None = None,
+    ) -> list[Criterion]:
+        return await self._json_chat(
             model=self.config.model,
             system=SYSTEM_CRITERIA,
             user=json.dumps({"jd": jd, "requirements": requirements}, ensure_ascii=False),
+            max_tokens=JD_MAX_TOKENS,
+            timeout_seconds=JD_REQUEST_TIMEOUT_SECONDS,
+            max_attempts=JD_MAX_ATTEMPTS,
+            retry_delays=JD_RETRY_DELAYS,
+            parser=self._parse_criteria,
+            retryable=self._criteria_retryable,
+            on_attempt=on_attempt,
         )
-        criteria = CriteriaPayload.model_validate(payload).criteria
-        if not criteria:
-            raise ValueError("模型未生成筛选条件")
-        return criteria
 
     @staticmethod
     def _unique_files(package: CandidatePackage) -> list[MaterialFile]:

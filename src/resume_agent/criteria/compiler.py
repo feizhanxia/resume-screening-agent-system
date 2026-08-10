@@ -1,13 +1,24 @@
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 import re
-from typing import Any
+from collections.abc import Callable
+from typing import Any, Literal
+
+from pydantic import BaseModel
 
 from resume_agent.domain.models import Criterion, CriterionKind
 
-PROMPT_VERSION = "criteria-1"
+PROMPT_VERSION = "criteria-2-fast"
+CRITERIA_CACHE_LIMIT = 24
+
+
+class CriteriaCompilation(BaseModel):
+    criteria: list[Criterion]
+    source: Literal["model", "local_draft"]
+    warning: str = ""
 
 
 def _slug(value: str, index: int) -> str:
@@ -77,6 +88,30 @@ def criteria_fingerprint(criteria: list[Criterion]) -> str:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
+def jd_cache_fingerprint(jd: str, requirements: str, model: str) -> str:
+    """Identify a successful JD compilation without persisting the original JD."""
+    payload = {
+        "jd": jd.replace("\r\n", "\n").replace("\r", "\n").strip(),
+        "requirements": requirements.replace("\r\n", "\n").replace("\r", "\n").strip(),
+        "model": model.strip(),
+        "prompt_version": PROMPT_VERSION,
+    }
+    canonical = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def encode_criteria_cache(criteria: list[Criterion]) -> str:
+    payload = [item.model_dump(mode="json") for item in criteria]
+    return json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
+
+
+def decode_criteria_cache(raw: str) -> list[Criterion]:
+    payload = json.loads(raw)
+    if not isinstance(payload, list) or not payload or len(payload) > CRITERIA_CACHE_LIMIT:
+        raise ValueError("条件缓存结构无效")
+    return [Criterion.model_validate(item) for item in payload]
+
+
 async def compile_criteria(
     jd: str,
     requirements: str = "",
@@ -87,3 +122,33 @@ async def compile_criteria(
     if llm_client is None:
         return heuristic_compile(jd, requirements)
     return await llm_client.compile_criteria(jd, requirements)
+
+
+async def compile_criteria_fast(
+    jd: str,
+    requirements: str,
+    llm_client: Any | None,
+    *,
+    timeout_seconds: float,
+    on_attempt: Callable[[int, int], None] | None = None,
+) -> CriteriaCompilation:
+    if not jd.strip() and not requirements.strip():
+        raise ValueError("JD 和筛选要求不能同时为空")
+    if llm_client is None:
+        return CriteriaCompilation(
+            criteria=heuristic_compile(jd, requirements),
+            source="local_draft",
+            warning="未配置 API Key",
+        )
+    try:
+        criteria = await asyncio.wait_for(
+            llm_client.compile_criteria(jd, requirements, on_attempt=on_attempt),
+            timeout=timeout_seconds,
+        )
+        return CriteriaCompilation(criteria=criteria, source="model")
+    except Exception as exc:
+        return CriteriaCompilation(
+            criteria=heuristic_compile(jd, requirements),
+            source="local_draft",
+            warning=type(exc).__name__,
+        )

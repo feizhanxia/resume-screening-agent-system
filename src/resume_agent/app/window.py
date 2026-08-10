@@ -38,7 +38,12 @@ from PySide6.QtWidgets import (
 
 from resume_agent.audit.coverage import audit_run
 from resume_agent.config import APP_NAME, WorkspacePaths, default_config, load_api_key, save_api_key
-from resume_agent.criteria.compiler import compile_criteria
+from resume_agent.criteria.compiler import (
+    compile_criteria_fast,
+    decode_criteria_cache,
+    encode_criteria_cache,
+    jd_cache_fingerprint,
+)
 from resume_agent.domain.models import (
     AnalysisResult,
     Conclusion,
@@ -48,7 +53,7 @@ from resume_agent.domain.models import (
     RunConfig,
     ScanResult,
 )
-from resume_agent.llm.deepseek import DeepSeekClient
+from resume_agent.llm.deepseek import JD_TOTAL_TIMEOUT_SECONDS, DeepSeekClient
 from resume_agent.materials.copying import copy_candidate_packages
 from resume_agent.reporting.excel import export_excel
 from resume_agent.safety import escape_rich_text
@@ -109,7 +114,8 @@ class ScanThread(QThread):
 
 
 class CriteriaThread(QThread):
-    completed = Signal(object)
+    completed = Signal(object, str, str)
+    progress = Signal(str)
     failed = Signal(str)
 
     def __init__(self, jd: str, requirements: str, config: RunConfig, api_key: str | None):
@@ -122,8 +128,23 @@ class CriteriaThread(QThread):
     def run(self) -> None:
         try:
             client = DeepSeekClient(self.api_key, self.config) if self.api_key else None
-            result = asyncio.run(compile_criteria(self.jd, self.requirements, client))
-            self.completed.emit(result)
+
+            def report_attempt(attempt: int, total: int) -> None:
+                if attempt == 1:
+                    self.progress.emit(f"正在解析（第{attempt}/{total}次）")
+                else:
+                    self.progress.emit(f"响应异常，正在重试（第{attempt}/{total}次）")
+
+            result = asyncio.run(
+                compile_criteria_fast(
+                    self.jd,
+                    self.requirements,
+                    client,
+                    timeout_seconds=JD_TOTAL_TIMEOUT_SECONDS,
+                    on_attempt=report_attempt,
+                )
+            )
+            self.completed.emit(result.criteria, result.source, result.warning)
         except Exception as exc:
             self.failed.emit(str(exc))
 
@@ -260,6 +281,7 @@ class MainWindow(QMainWindow):
         self.criteria_thread: CriteriaThread | None = None
         self.engine_thread: EngineThread | None = None
         self.worker_labels: list[QLabel] = []
+        self._criteria_request_fingerprint = ""
         self._build_ui()
         self._restore_settings()
 
@@ -622,18 +644,37 @@ class MainWindow(QMainWindow):
         if not jd and not requirements:
             QMessageBox.warning(self, "缺少岗位要求", "请先粘贴 JD 或补充筛选要求。")
             return
+        fingerprint = jd_cache_fingerprint(jd, requirements, self.config.model)
+        self._criteria_request_fingerprint = fingerprint
+        cached = self._load_criteria_cache(fingerprint)
+        if cached:
+            self._criteria_completed(cached, "cache", "")
+            return
         self.compile_button.setEnabled(False)
-        self.compile_button.setText("正在解析…")
+        self.compile_button.setText("正在解析（第1/3次）")
         self.criteria_thread = CriteriaThread(jd, requirements, self.config, load_api_key())
         self.criteria_thread.completed.connect(self._criteria_completed)
+        self.criteria_thread.progress.connect(self.compile_button.setText)
         self.criteria_thread.failed.connect(self._criteria_failed)
         self.criteria_thread.start()
 
-    def _criteria_completed(self, criteria: list[Criterion]) -> None:
+    def _criteria_completed(
+        self, criteria: list[Criterion], source: str, warning: str
+    ) -> None:
         self.criteria = criteria
         self.criteria_table.setRowCount(0)
         for item in criteria:
             self._append_criterion_row(item)
+        if source == "model" and self._criteria_request_fingerprint:
+            self._save_criteria_cache(self._criteria_request_fingerprint, criteria)
+        if source == "cache":
+            status = "已复用上次解析"
+        elif source == "local_draft":
+            status = "本地草稿，需人工确认"
+        else:
+            status = "模型解析"
+        self.criteria_count.setText(f"{len(criteria)} 项 · {status}")
+        self.criteria_count.setToolTip(warning)
         self.compile_button.setEnabled(True)
         self.compile_button.setText("重新解析筛选条件 →")
         self.navigation.setCurrentRow(1)
@@ -642,6 +683,24 @@ class MainWindow(QMainWindow):
         self.compile_button.setEnabled(True)
         self.compile_button.setText("解析筛选条件 →")
         QMessageBox.critical(self, "条件解析失败", message)
+
+    def _load_criteria_cache(self, fingerprint: str) -> list[Criterion] | None:
+        if self.settings.value("criteria_cache/fingerprint", "") != fingerprint:
+            return None
+        try:
+            raw = str(self.settings.value("criteria_cache/criteria_json", ""))
+            return decode_criteria_cache(raw)
+        except (TypeError, ValueError):
+            self.settings.remove("criteria_cache")
+            return None
+
+    def _save_criteria_cache(self, fingerprint: str, criteria: list[Criterion]) -> None:
+        self.settings.setValue("criteria_cache/fingerprint", fingerprint)
+        self.settings.setValue(
+            "criteria_cache/criteria_json",
+            encode_criteria_cache(criteria),
+        )
+        self.settings.sync()
 
     def _append_criterion_row(self, criterion: Criterion | None) -> None:
         row = self.criteria_table.rowCount()
