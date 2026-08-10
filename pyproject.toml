@@ -13,6 +13,7 @@ authors = [{ name = "feizhanxia" }]
 keywords = ["resume", "screening", "desktop", "ocr", "pyside6", "deepseek"]
 classifiers = [
   "Development Status :: 4 - Beta",
+  "Operating System :: MacOS :: MacOS X",
   "Operating System :: Microsoft :: Windows :: Windows 10",
   "Operating System :: Microsoft :: Windows :: Windows 11",
   "Programming Language :: Python :: 3.12",
