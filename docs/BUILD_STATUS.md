@@ -19,7 +19,7 @@ macOS 由 `.github/workflows/build-macos.yml` 在 Apple Silicon Runner 上构建
 
 ## 已验证范围
 
-- 21 项自动化测试覆盖目录扫描、内容哈希、DOCX 顺序证据、八路队列、Excel、人工字段持久化、材料复制、离线 OCR 与关键安全边界。
+- 29 项自动化测试覆盖目录扫描、内容哈希、重复材料去重、材料路由、受限模型上下文、JSON 降级、动态 Worker、DOCX 顺序证据、Excel、人工字段持久化、材料复制、离线 OCR 与关键安全边界。
 - 源码包和 wheel 可正常构建，并包含 MIT License。
 - Windows 手册已重新生成，并完成 10 页渲染检查。
 - 当前源码和 Git 历史未发现真实 API Key；测试只使用合成数据。

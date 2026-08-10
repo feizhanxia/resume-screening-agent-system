@@ -218,6 +218,17 @@ class Database:
                 ),
             )
 
+    def update_material_roles(self, candidate_id: str, roles: dict[str, str]) -> None:
+        if not roles:
+            return
+        with self.connection() as conn:
+            for file_id, role in roles.items():
+                conn.execute(
+                    """UPDATE candidate_files SET material_role=?
+                       WHERE candidate_id=? AND file_id=? AND active=1""",
+                    (role, candidate_id, file_id),
+                )
+
     def set_candidate_state(self, candidate_id: str, state: CandidateState) -> None:
         with self.connection() as conn:
             conn.execute(

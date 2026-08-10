@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import subprocess
 import tempfile
+import threading
 from pathlib import Path
 
 import pypdfium2 as pdfium
@@ -14,10 +15,11 @@ from resume_agent.extraction.ocr import (
     resolve_languages,
 )
 
-EXTRACTOR_VERSION = "pdfium-1"
+EXTRACTOR_VERSION = "pdfium-2"
 MIN_TEXT_CHARS = 24
 MAX_PDF_PAGES = 500
 MAX_RENDER_PIXELS = 60_000_000
+PDFIUM_LOCK = threading.Lock()
 
 
 def _ocr_page(page: object, languages: str = "chi_sim+eng") -> tuple[str, str | None]:
@@ -61,7 +63,9 @@ def _ocr_page(page: object, languages: str = "chi_sim+eng") -> tuple[str, str | 
         return "", str(exc)
 
 
-def extract_pdf(path: Path, file_id: str, ocr_languages: str = "chi_sim+eng") -> ExtractionResult:
+def _extract_pdf_locked(
+    path: Path, file_id: str, ocr_languages: str = "chi_sim+eng"
+) -> ExtractionResult:
     try:
         document = pdfium.PdfDocument(str(path))
     except Exception as exc:
@@ -149,3 +153,10 @@ def extract_pdf(path: Path, file_id: str, ocr_languages: str = "chi_sim+eng") ->
         error="；".join(errors) or None,
         extractor_version=EXTRACTOR_VERSION,
     )
+
+
+def extract_pdf(path: Path, file_id: str, ocr_languages: str = "chi_sim+eng") -> ExtractionResult:
+    # PDFium is not thread-safe. Serialize its native calls while DOCX/image extraction remains
+    # parallel, preventing intermittent page failures and native crashes under eight workers.
+    with PDFIUM_LOCK:
+        return _extract_pdf_locked(path, file_id, ocr_languages)
