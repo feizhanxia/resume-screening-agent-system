@@ -6,6 +6,8 @@
   concise model output, and an explicit editable local-draft fallback.
 - Reuse the most recent successful JD result from privacy-conscious local settings without storing
   the original JD text.
+- Bundle versioned official 985, 211 and second-round Double First-Class institution and discipline
+  lists; resolve evidence-backed undergraduate institution criteria locally and deterministically.
 
 ## 0.1.0-beta.4
 

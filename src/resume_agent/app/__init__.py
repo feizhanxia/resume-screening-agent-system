@@ -26,6 +26,7 @@ def main() -> None:
             find_tesseract,
             rapid_ocr_image,
         )
+        from resume_agent.facts.universities import UniversityCatalog
 
         application.processEvents()
         tessdata = find_tessdata()
@@ -35,6 +36,13 @@ def main() -> None:
 
         print(f"SMOKE_OK tessdata={tessdata} tesseract={find_tesseract() or 'not-found'}")
         print(f"SMOKE_OK rapidocr={RapidOCR.__name__}")
+        catalog = UniversityCatalog.load_default()
+        if catalog.payload.counts.get("double_first_class_institutions") != 147:
+            raise RuntimeError("内置院校目录自检失败")
+        print(
+            "SMOKE_OK universities="
+            f"{len(catalog.payload.institutions)} version={catalog.payload.catalog_version}"
+        )
         with tempfile.TemporaryDirectory(prefix="resume-agent-smoke-") as temp_dir:
             image_path = Path(temp_dir) / "ocr.png"
             image = Image.new("RGB", (900, 180), "white")

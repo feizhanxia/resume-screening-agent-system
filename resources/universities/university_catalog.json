@@ -1,0 +1,2187 @@
+{
+  "schema_version": 1,
+  "catalog_version": "2022-second-round-v1",
+  "generated_from_official_sources": "2026-08-10",
+  "counts": {
+    "985_official": 39,
+    "211_official": 112,
+    "double_first_class_institutions": 147
+  },
+  "notes": [
+    "985和211为历史工程名单；双一流使用2022年公布的第二轮名单。",
+    "211官方名单中的中国矿业大学、中国石油大学、中国地质大学按当前校名展开到两所办学实体，官方计数仍为112。",
+    "北京大学和清华大学的第二轮建设学科由学校自主确定并自行公布。"
+  ],
+  "sources": {
+    "985": {
+      "title": "“985工程”学校名单",
+      "publisher": "中华人民共和国教育部",
+      "url": "https://www.moe.gov.cn/srcsite/A22/s7065/200612/t20061206_128833.html",
+      "published": "2008-04-25",
+      "source_sha256": "4b9d1471459ba164985794c04d943d91dd35caba47a326776d1df93ecccfe3cc"
+    },
+    "211": {
+      "title": "“211工程”学校名单",
+      "publisher": "中华人民共和国教育部",
+      "url": "https://www.moe.gov.cn/srcsite/A22/s7065/200512/t20051223_82762.html",
+      "published": "2008-04-25",
+      "source_sha256": "3c92af7f7a132a290fb8f5673ffe922f4b109f9aa0f941200ce1b1a7bdd3e3f6"
+    },
+    "double_first_class": {
+      "title": "第二轮“双一流”建设高校及建设学科名单",
+      "publisher": "中华人民共和国教育部、财政部、国家发展改革委",
+      "url": "https://www.moe.gov.cn/srcsite/A22/s7065/202202/t20220211_598710.html",
+      "attachment_url": "https://www.moe.gov.cn/srcsite/A22/s7065/202202/W020220214318455516037.pdf",
+      "published": "2022-02-14",
+      "source_sha256": "305f73ed08c091984a75e3c29289c166fbaf6778b87fb9802afa176104c1f7ac"
+    }
+  },
+  "institutions": [
+    {
+      "name": "北京大学",
+      "aliases": [
+        "北大"
+      ],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [],
+      "discipline_note": "自主确定建设学科并自行公布"
+    },
+    {
+      "name": "中国人民大学",
+      "aliases": [
+        "人大"
+      ],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "哲学",
+        "理论经济学",
+        "应用经济学",
+        "法学",
+        "政治学",
+        "社会学",
+        "马克思主义理论",
+        "新闻传播学",
+        "中国史",
+        "统计学",
+        "工商管理",
+        "农林经济管理",
+        "公共管理",
+        "图书情报与档案管理"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "清华大学",
+      "aliases": [
+        "清华"
+      ],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [],
+      "discipline_note": "自主确定建设学科并自行公布"
+    },
+    {
+      "name": "北京交通大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "系统科学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "北京工业大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "土木工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "北京航空航天大学",
+      "aliases": [
+        "北航"
+      ],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "力学",
+        "仪器科学与技术",
+        "材料科学与工程",
+        "控制科学与工程",
+        "计算机科学与技术",
+        "交通运输工程",
+        "航空宇航科学与技术",
+        "软件工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "北京理工大学",
+      "aliases": [
+        "北理工"
+      ],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "物理学",
+        "材料科学与工程",
+        "控制科学与工程",
+        "兵器科学与技术"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "北京科技大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "科学技术史",
+        "材料科学与工程",
+        "冶金工程",
+        "矿业工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "北京化工大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "化学工程与技术"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "北京邮电大学",
+      "aliases": [
+        "北邮"
+      ],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "信息与通信工程",
+        "计算机科学与技术"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "中国农业大学",
+      "aliases": [
+        "中国农大"
+      ],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "生物学",
+        "农业工程",
+        "食品科学与工程",
+        "作物学",
+        "农业资源与环境",
+        "植物保护",
+        "畜牧学",
+        "兽医学",
+        "草学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "北京林业大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "风景园林学",
+        "林学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "北京协和医学院",
+      "aliases": [],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "生物学",
+        "生物医学工程",
+        "临床医学",
+        "公共卫生与预防医学",
+        "药学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "北京中医药大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "中医学",
+        "中西医结合",
+        "中药学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "北京师范大学",
+      "aliases": [
+        "北师大"
+      ],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "哲学",
+        "教育学",
+        "心理学",
+        "中国语言文学",
+        "外国语言文学",
+        "中国史",
+        "数学",
+        "地理学",
+        "系统科学",
+        "生态学",
+        "环境科学与工程",
+        "戏剧与影视学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "首都师范大学",
+      "aliases": [],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "数学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "北京外国语大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "外国语言文学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "中国传媒大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "新闻传播学",
+        "戏剧与影视学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "中央财经大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "应用经济学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "对外经济贸易大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "应用经济学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "外交学院",
+      "aliases": [],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "政治学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "中国人民公安大学",
+      "aliases": [],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "公安学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "北京体育大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "体育学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "中央音乐学院",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "音乐与舞蹈学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "中国音乐学院",
+      "aliases": [],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "音乐与舞蹈学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "中央美术学院",
+      "aliases": [],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "美术学",
+        "设计学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "中央戏剧学院",
+      "aliases": [],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "戏剧与影视学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "中央民族大学",
+      "aliases": [],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "民族学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "中国政法大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "法学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "南开大学",
+      "aliases": [],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "应用经济学",
+        "世界史",
+        "数学",
+        "化学",
+        "统计学",
+        "材料科学与工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "天津大学",
+      "aliases": [
+        "天大"
+      ],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "化学",
+        "材料科学与工程",
+        "动力工程及工程热物理",
+        "化学工程与技术",
+        "管理科学与工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "天津工业大学",
+      "aliases": [],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "纺织科学与工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "天津医科大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "临床医学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "天津中医药大学",
+      "aliases": [],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "中药学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "华北电力大学",
+      "aliases": [
+        "华北电力大学（保定）",
+        "华北电力大学（北京）",
+        "华电"
+      ],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "电气工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "河北工业大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "电气工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "山西大学",
+      "aliases": [],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "哲学",
+        "物理学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "太原理工大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "化学工程与技术"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "内蒙古大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "生物学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "辽宁大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "应用经济学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "大连理工大学",
+      "aliases": [
+        "大工"
+      ],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "力学",
+        "机械工程",
+        "化学工程与技术"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "东北大学",
+      "aliases": [],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "冶金工程",
+        "控制科学与工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "大连海事大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "交通运输工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "吉林大学",
+      "aliases": [
+        "吉大"
+      ],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "考古学",
+        "数学",
+        "物理学",
+        "化学",
+        "生物学",
+        "材料科学与工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "延边大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "外国语言文学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "东北师范大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "马克思主义理论",
+        "教育学",
+        "世界史",
+        "化学",
+        "统计学",
+        "材料科学与工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "哈尔滨工业大学",
+      "aliases": [
+        "哈尔滨工业大学（威海）",
+        "哈尔滨工业大学（深圳）",
+        "哈工大",
+        "哈工大威海",
+        "哈工大深圳"
+      ],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "力学",
+        "机械工程",
+        "材料科学与工程",
+        "控制科学与工程",
+        "计算机科学与技术",
+        "土木工程",
+        "航空宇航科学与技术",
+        "环境科学与工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "哈尔滨工程大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "船舶与海洋工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "东北农业大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "畜牧学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "东北林业大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "林业工程",
+        "林学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "复旦大学",
+      "aliases": [
+        "复旦"
+      ],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "哲学",
+        "应用经济学",
+        "政治学",
+        "马克思主义理论",
+        "中国语言文学",
+        "外国语言文学",
+        "中国史",
+        "数学",
+        "物理学",
+        "化学",
+        "生物学",
+        "生态学",
+        "材料科学与工程",
+        "环境科学与工程",
+        "基础医学",
+        "临床医学",
+        "公共卫生与预防医学",
+        "中西医结合",
+        "药学",
+        "集成电路科学与工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "同济大学",
+      "aliases": [],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "生物学",
+        "建筑学",
+        "土木工程",
+        "测绘科学与技术",
+        "环境科学与工程",
+        "城乡规划学",
+        "风景园林学",
+        "设计学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "上海交通大学",
+      "aliases": [
+        "上交",
+        "上海交大"
+      ],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "数学",
+        "物理学",
+        "化学",
+        "生物学",
+        "机械工程",
+        "材料科学与工程",
+        "电子科学与技术",
+        "信息与通信工程",
+        "控制科学与工程",
+        "计算机科学与技术",
+        "土木工程",
+        "化学工程与技术",
+        "船舶与海洋工程",
+        "基础医学",
+        "临床医学",
+        "口腔医学",
+        "药学",
+        "工商管理"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "华东理工大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "化学",
+        "材料科学与工程",
+        "化学工程与技术"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "东华大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "材料科学与工程",
+        "纺织科学与工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "上海海洋大学",
+      "aliases": [],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "水产"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "上海中医药大学",
+      "aliases": [],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "中医学",
+        "中药学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "华东师范大学",
+      "aliases": [],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "教育学",
+        "生态学",
+        "统计学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "上海外国语大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "外国语言文学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "上海财经大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "应用经济学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "上海体育学院",
+      "aliases": [
+        "上海体育大学"
+      ],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "体育学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "上海音乐学院",
+      "aliases": [],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "音乐与舞蹈学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "上海大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "机械工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "南京大学",
+      "aliases": [],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "哲学",
+        "理论经济学",
+        "中国语言文学",
+        "外国语言文学",
+        "物理学",
+        "化学",
+        "天文学",
+        "大气科学",
+        "地质学",
+        "生物学",
+        "材料科学与工程",
+        "计算机科学与技术",
+        "化学工程与技术",
+        "矿业工程",
+        "环境科学与工程",
+        "图书情报与档案管理"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "苏州大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "材料科学与工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "东南大学",
+      "aliases": [],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "机械工程",
+        "材料科学与工程",
+        "电子科学与技术",
+        "信息与通信工程",
+        "控制科学与工程",
+        "计算机科学与技术",
+        "建筑学",
+        "土木工程",
+        "交通运输工程",
+        "生物医学工程",
+        "风景园林学",
+        "艺术学理论"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "南京航空航天大学",
+      "aliases": [
+        "南航"
+      ],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "力学",
+        "控制科学与工程",
+        "航空宇航科学与技术"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "南京理工大学",
+      "aliases": [
+        "南理工"
+      ],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "兵器科学与技术"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "中国矿业大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "矿业工程",
+        "安全科学与工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "南京邮电大学",
+      "aliases": [],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "电子科学与技术"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "河海大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "水利工程",
+        "环境科学与工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "江南大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "轻工技术与工程",
+        "食品科学与工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "南京林业大学",
+      "aliases": [],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "林业工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "南京信息工程大学",
+      "aliases": [],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "大气科学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "南京农业大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "作物学",
+        "农业资源与环境"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "南京医科大学",
+      "aliases": [],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "公共卫生与预防医学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "南京中医药大学",
+      "aliases": [],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "中药学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "中国药科大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "中药学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "南京师范大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "地理学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "浙江大学",
+      "aliases": [
+        "浙大"
+      ],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "化学",
+        "生物学",
+        "生态学",
+        "机械工程",
+        "光学工程",
+        "材料科学与工程",
+        "动力工程及工程热物理",
+        "电气工程",
+        "控制科学与工程",
+        "计算机科学与技术",
+        "土木工程",
+        "农业工程",
+        "环境科学与工程",
+        "软件工程",
+        "园艺学",
+        "植物保护",
+        "基础医学",
+        "临床医学",
+        "药学",
+        "管理科学与工程",
+        "农林经济管理"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "中国美术学院",
+      "aliases": [],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "美术学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "安徽大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "材料科学与工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "中国科学技术大学",
+      "aliases": [
+        "中国科大",
+        "中科大"
+      ],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "数学",
+        "物理学",
+        "化学",
+        "天文学",
+        "地球物理学",
+        "生物学",
+        "科学技术史",
+        "材料科学与工程",
+        "计算机科学与技术",
+        "核科学与技术",
+        "安全科学与工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "合肥工业大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "管理科学与工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "厦门大学",
+      "aliases": [
+        "厦大"
+      ],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "教育学",
+        "化学",
+        "海洋科学",
+        "生物学",
+        "生态学",
+        "统计学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "福州大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "化学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "南昌大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "材料科学与工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "山东大学",
+      "aliases": [],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "中国语言文学",
+        "数学",
+        "化学",
+        "临床医学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "中国海洋大学",
+      "aliases": [],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "海洋科学",
+        "水产"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "中国石油大学（华东）",
+      "aliases": [
+        "中国石油大学"
+      ],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "地质资源与地质工程",
+        "石油与天然气工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "郑州大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "化学",
+        "材料科学与工程",
+        "临床医学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "河南大学",
+      "aliases": [],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "生物学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "武汉大学",
+      "aliases": [
+        "武大"
+      ],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "理论经济学",
+        "法学",
+        "马克思主义理论",
+        "化学",
+        "地球物理学",
+        "生物学",
+        "土木工程",
+        "水利工程",
+        "测绘科学与技术",
+        "口腔医学",
+        "图书情报与档案管理"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "华中科技大学",
+      "aliases": [
+        "华中大",
+        "华科"
+      ],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "机械工程",
+        "光学工程",
+        "材料科学与工程",
+        "动力工程及工程热物理",
+        "电气工程",
+        "计算机科学与技术",
+        "基础医学",
+        "临床医学",
+        "公共卫生与预防医学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "中国地质大学（武汉）",
+      "aliases": [
+        "中国地质大学"
+      ],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "地质学",
+        "地质资源与地质工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "武汉理工大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "材料科学与工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "华中农业大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "生物学",
+        "园艺学",
+        "畜牧学",
+        "兽医学",
+        "农林经济管理"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "华中师范大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "政治学",
+        "教育学",
+        "中国语言文学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "中南财经政法大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "法学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "湘潭大学",
+      "aliases": [],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "数学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "湖南大学",
+      "aliases": [],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "化学",
+        "机械工程",
+        "电气工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "中南大学",
+      "aliases": [],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "数学",
+        "材料科学与工程",
+        "冶金工程",
+        "矿业工程",
+        "交通运输工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "湖南师范大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "外国语言文学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "中山大学",
+      "aliases": [],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "哲学",
+        "数学",
+        "化学",
+        "生物学",
+        "生态学",
+        "材料科学与工程",
+        "电子科学与技术",
+        "基础医学",
+        "临床医学",
+        "药学",
+        "工商管理"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "暨南大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "药学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "华南理工大学",
+      "aliases": [
+        "华工"
+      ],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "化学",
+        "材料科学与工程",
+        "轻工技术与工程",
+        "食品科学与工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "华南农业大学",
+      "aliases": [],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "作物学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "广州医科大学",
+      "aliases": [],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "临床医学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "广州中医药大学",
+      "aliases": [],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "中医学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "华南师范大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "物理学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "海南大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "作物学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "广西大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "土木工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "四川大学",
+      "aliases": [
+        "川大"
+      ],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "数学",
+        "化学",
+        "材料科学与工程",
+        "基础医学",
+        "口腔医学",
+        "护理学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "重庆大学",
+      "aliases": [
+        "重大"
+      ],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "机械工程",
+        "电气工程",
+        "土木工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "西南交通大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "交通运输工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "电子科技大学",
+      "aliases": [
+        "成电"
+      ],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "电子科学与技术",
+        "信息与通信工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "西南石油大学",
+      "aliases": [],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "石油与天然气工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "成都理工大学",
+      "aliases": [],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "地质资源与地质工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "四川农业大学",
+      "aliases": [
+        "川农"
+      ],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "作物学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "成都中医药大学",
+      "aliases": [],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "中药学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "西南大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "教育学",
+        "生物学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "西南财经大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "应用经济学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "贵州大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "植物保护"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "云南大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "民族学",
+        "生态学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "西藏大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "生态学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "西北大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "考古学",
+        "地质学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "西安交通大学",
+      "aliases": [
+        "西交",
+        "西安交大"
+      ],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "力学",
+        "机械工程",
+        "材料科学与工程",
+        "动力工程及工程热物理",
+        "电气工程",
+        "控制科学与工程",
+        "管理科学与工程",
+        "工商管理"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "西北工业大学",
+      "aliases": [
+        "西工大"
+      ],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "机械工程",
+        "材料科学与工程",
+        "航空宇航科学与技术"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "西安电子科技大学",
+      "aliases": [
+        "西电"
+      ],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "信息与通信工程",
+        "计算机科学与技术"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "长安大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "交通运输工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "西北农林科技大学",
+      "aliases": [],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "植物保护",
+        "畜牧学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "陕西师范大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "中国语言文学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "兰州大学",
+      "aliases": [
+        "兰大"
+      ],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "化学",
+        "大气科学",
+        "生态学",
+        "草学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "青海大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "生态学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "宁夏大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "化学工程与技术"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "新疆大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "马克思主义理论",
+        "化学",
+        "计算机科学与技术"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "石河子大学",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "化学工程与技术"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "中国矿业大学（北京）",
+      "aliases": [],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "矿业工程",
+        "安全科学与工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "中国石油大学（北京）",
+      "aliases": [
+        "中国石油大学"
+      ],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "地质资源与地质工程",
+        "石油与天然气工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "中国地质大学（北京）",
+      "aliases": [
+        "中国地质大学"
+      ],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "地质学",
+        "地质资源与地质工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "宁波大学",
+      "aliases": [],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "力学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "南方科技大学",
+      "aliases": [],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "数学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "上海科技大学",
+      "aliases": [],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "材料科学与工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "中国科学院大学",
+      "aliases": [],
+      "categories": [
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "化学",
+        "材料科学与工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "国防科技大学",
+      "aliases": [
+        "国防科大",
+        "国防科学技术大学"
+      ],
+      "categories": [
+        "985",
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "信息与通信工程",
+        "计算机科学与技术",
+        "航空宇航科学与技术",
+        "软件工程",
+        "管理科学与工程"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "海军军医大学",
+      "aliases": [
+        "二军大",
+        "第二军医大学"
+      ],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "基础医学"
+      ],
+      "discipline_note": ""
+    },
+    {
+      "name": "空军军医大学",
+      "aliases": [
+        "四军大",
+        "第四军医大学"
+      ],
+      "categories": [
+        "211",
+        "double_first_class"
+      ],
+      "double_first_class_disciplines": [
+        "临床医学"
+      ],
+      "discipline_note": ""
+    }
+  ]
+}

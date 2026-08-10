@@ -432,7 +432,7 @@ class MainWindow(QMainWindow):
         header.setSectionResizeMode(5, QHeaderView.ResizeMode.ResizeToContents)
         layout.addWidget(self.criteria_table, 1)
         actions = QHBoxLayout()
-        warning = QLabel("排名、985/211、双一流等条件若无可信名单，将保持“不确定”。")
+        warning = QLabel("985/211/双一流高校按内置教育部目录核验；排名等条件仍需指定口径。")
         warning.setObjectName("PageSub")
         self.start_button = QPushButton("开始批量筛选 →")
         self.start_button.setObjectName("Primary")

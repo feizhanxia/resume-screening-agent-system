@@ -16,6 +16,10 @@ from resume_agent.domain.models import (
     ScanResult,
 )
 from resume_agent.extraction.service import ExtractionService
+from resume_agent.facts.universities import (
+    UniversityCatalog,
+    apply_university_resolutions,
+)
 from resume_agent.llm.deepseek import (
     DeepSeekClient,
     ModelCallError,
@@ -45,6 +49,10 @@ class ScreeningEngine:
         self.progress = progress or (lambda event: None)
         self.llm = DeepSeekClient(api_key, config) if api_key else None
         self.extractions = ExtractionService(database, config.extraction_concurrency)
+        try:
+            self.university_catalog = UniversityCatalog.load_default()
+        except (OSError, TypeError, ValueError):
+            self.university_catalog = None
         self.pause_event = asyncio.Event()
         self.pause_event.set()
         self.cancel_event = asyncio.Event()
@@ -206,6 +214,8 @@ class ScreeningEngine:
         cached = self.database.find_cached_analysis(package.package_hash, criteria_hash, model_name)
         if cached:
             cached.candidate_id = package.candidate_id
+            if self.university_catalog:
+                apply_university_resolutions(cached, criteria, self.university_catalog)
             degraded = cached.prompt_version.endswith("degraded")
             needs_review = degraded or any(
                 judgment.needs_external_fact for judgment in cached.judgments
@@ -295,6 +305,8 @@ class ScreeningEngine:
             result.overall_reason = "；".join(
                 value for value in (result.overall_reason, routing_reason) if value
             )
+        if self.university_catalog:
+            apply_university_resolutions(result, criteria, self.university_catalog)
         self.database.set_candidate_state(package.candidate_id, CandidateState.VERIFYING)
         missing = {item.criterion_id for item in criteria if item.enabled} - {
             item.criterion_id for item in result.judgments
