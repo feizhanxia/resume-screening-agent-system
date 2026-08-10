@@ -2,7 +2,7 @@
 
 The MIT License in this repository applies to the original Resume Screening Agent code only.
 Bundled libraries, native binaries, OCR models, and other dependencies remain under their own
-licenses. The Windows package includes the applicable license texts and this notice.
+licenses. Packaged desktop releases include the applicable license texts and this notice.
 
 Key runtime components include:
 
@@ -24,9 +24,9 @@ Key runtime components include:
 | Tesseract language data | Apache-2.0 |
 | PyInstaller bootloader | GPL-2.0-or-later with the PyInstaller bootloader exception |
 
-The exact versions included in each Windows release are recorded in the accompanying
-`windows-dependencies.txt`. Copyright and license files installed by individual packages are
-preserved where the upstream package supplies them.
+The exact versions included in each desktop release are recorded in the accompanying platform
+dependency list. Copyright and license files installed by individual packages are preserved in
+Windows portable packages and inside macOS application resources.
 
 Qt for Python is used under the GNU Lesser General Public License version 3. The packaged
 application uses replaceable Qt dynamic libraries and does not prevent reverse engineering for

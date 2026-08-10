@@ -4,14 +4,14 @@
 
 **把数百份散乱的 PDF / DOCX 简历，变成可核查、可筛选、可交付的候选人清单。**
 
-本地优先 · 8 路并行 · 动态筛选条件 · Excel 证据链 · Windows 桌面应用
+本地优先 · 8 路并行 · 动态筛选条件 · Excel 证据链 · Windows / macOS 桌面应用
 
 [![CI](https://github.com/feizhanxia/resume-screening-agent-system/actions/workflows/ci.yml/badge.svg)](https://github.com/feizhanxia/resume-screening-agent-system/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/feizhanxia/resume-screening-agent-system?include_prereleases&label=Windows)](https://github.com/feizhanxia/resume-screening-agent-system/releases)
+[![Release](https://img.shields.io/github/v/release/feizhanxia/resume-screening-agent-system?include_prereleases&label=Desktop)](https://github.com/feizhanxia/resume-screening-agent-system/releases)
 [![License](https://img.shields.io/github/license/feizhanxia/resume-screening-agent-system)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 
-[下载 Windows 版](https://github.com/feizhanxia/resume-screening-agent-system/releases) · [图文使用指南](docs/WINDOWS_GUIDE.md) · [参与贡献](CONTRIBUTING.md)
+[下载桌面版](https://github.com/feizhanxia/resume-screening-agent-system/releases) · [Windows 指南](docs/WINDOWS_GUIDE.md) · [macOS 指南](docs/MACOS_GUIDE.md) · [参与贡献](CONTRIBUTING.md)
 
 </div>
 
@@ -31,8 +31,8 @@
 
 ## 4 步开始
 
-1. 从 [Releases](https://github.com/feizhanxia/resume-screening-agent-system/releases) 下载 `Setup-x64.exe`，或解压 `portable-x64.zip` 后运行 `ResumeScreeningAgent.exe`。
-2. 在设置页保存一枚你自己的 DeepSeek API Key；密钥进入 Windows 凭据管理器，不写入项目文件。
+1. 从 [Releases](https://github.com/feizhanxia/resume-screening-agent-system/releases) 下载 Windows x64 或 macOS Apple Silicon 版本。
+2. 在设置页保存一枚你自己的 DeepSeek API Key；密钥进入系统凭据库，不写入项目文件。
 3. 选择简历根目录和输出目录，粘贴 JD 与筛选要求，确认自动拆解的条件。
 4. 开始处理，在结果页核查证据、导出 Excel，并整理入选候选人的材料。
 
@@ -50,7 +50,7 @@
 
 每个一级子目录代表一位候选人；其中的 PDF、DOCX、图片及其他补充材料都会进入清单，原目录不会被修改。
 
-> 当前公开版是未签名 Beta。Windows 可能显示 SmartScreen 提示；请只从本仓库 Release 下载并核对 `windows-SHA256.txt`。项目尚未提供官方商业支持，不建议直接用于无人复核的招聘决策。
+> 当前公开版是未签名 Beta。Windows 可能显示 SmartScreen，macOS 会触发 Gatekeeper；请只从本仓库 Release 下载并核对对应的 SHA-256。项目尚未提供官方商业支持，不建议直接用于无人复核的招聘决策。
 
 ## 隐私边界
 
@@ -92,6 +92,12 @@ Windows 本地打包：
 powershell -ExecutionPolicy Bypass -File deploy/build_windows.ps1 -RequireInstaller
 ```
 
+macOS Apple Silicon 本地打包：
+
+```bash
+./deploy/build_macos.sh
+```
+
 版本 tag 会通过 GitHub Actions 生成安装器、便携版、依赖清单、SHA-256 和 Release。架构说明见 [总体架构](docs/ARCHITECTURE.md) 与 [标准 Agent Loop](docs/AGENT_LOOP.md)。
 
 ## 项目状态
@@ -102,6 +108,6 @@ powershell -ExecutionPolicy Bypass -File deploy/build_windows.ps1 -RequireInstal
 
 ---
 
-<sub>English: A local-first Windows desktop app that turns folders of PDF/DOCX resumes into evidence-backed, reviewable screening results. The UI is currently Chinese; English localization is planned.</sub>
+<sub>English: A local-first Windows and Apple Silicon macOS desktop app that turns folders of PDF/DOCX resumes into evidence-backed, reviewable screening results. The UI is currently Chinese; English localization is planned.</sub>
 
 MIT © 2026 [feizhanxia](https://github.com/feizhanxia)
