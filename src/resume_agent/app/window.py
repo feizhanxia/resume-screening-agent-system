@@ -54,7 +54,7 @@ from resume_agent.reporting.excel import export_excel
 from resume_agent.safety import escape_rich_text
 from resume_agent.scanning.scanner import default_output_dir, scan_resume_root
 from resume_agent.storage.database import Database
-from resume_agent.workers.engine import ScreeningEngine
+from resume_agent.workers.engine import ScreeningEngine, effective_worker_count
 
 STYLE = """
 QWidget { color: #183247; background: #F6F8F9; font-size: 13px; }
@@ -275,7 +275,7 @@ class MainWindow(QMainWindow):
         sidebar.setFixedWidth(220)
         side_layout = QVBoxLayout(sidebar)
         side_layout.setContentsMargins(22, 26, 18, 18)
-        brand = QLabel("RESUME / 8")
+        brand = QLabel("RESUME / AI")
         brand.setObjectName("Brand")
         sub = QLabel("简历筛选工作台")
         sub.setObjectName("BrandSub")
@@ -423,7 +423,7 @@ class MainWindow(QMainWindow):
 
     def _build_progress_page(self) -> QWidget:
         page, layout = self._page_shell(
-            "处理进度", "8 个 Worker 动态领取候选人；同一候选人的全部材料始终合并分析。"
+            "处理进度", "Worker 动态领取候选人；同一候选人的材料先去重和分类，再合并分析。"
         )
         metrics = QHBoxLayout()
         self.progress_metric = QLabel("0 / 0")
@@ -453,17 +453,9 @@ class MainWindow(QMainWindow):
         workers_title.setObjectName("Section")
         layout.addWidget(workers_title)
         worker_frame = QFrame()
-        worker_layout = QVBoxLayout(worker_frame)
-        worker_layout.setContentsMargins(0, 0, 0, 0)
-        for index in range(8):
-            label = QLabel(f"Worker {index + 1}  ·  空闲")
-            label.setMinimumHeight(28)
-            if index % 2 == 0:
-                label.setStyleSheet("background:#EEF3F4; padding:6px; border-radius:4px;")
-            else:
-                label.setStyleSheet("padding:6px;")
-            self.worker_labels.append(label)
-            worker_layout.addWidget(label)
+        self.worker_layout = QVBoxLayout(worker_frame)
+        self.worker_layout.setContentsMargins(0, 0, 0, 0)
+        self._reset_worker_labels(self.config.worker_count)
         layout.addWidget(worker_frame)
         log_title = QLabel("运行事件")
         log_title.setObjectName("Section")
@@ -473,6 +465,23 @@ class MainWindow(QMainWindow):
         self.event_log.setMaximumBlockCount(300)
         layout.addWidget(self.event_log, 1)
         return page
+
+    def _reset_worker_labels(self, count: int) -> None:
+        while self.worker_layout.count():
+            item = self.worker_layout.takeAt(0)
+            widget = item.widget()
+            if widget:
+                widget.deleteLater()
+        self.worker_labels.clear()
+        for index in range(count):
+            label = QLabel(f"Worker {index + 1}  ·  空闲")
+            label.setMinimumHeight(28)
+            if index % 2 == 0:
+                label.setStyleSheet("background:#EEF3F4; padding:6px; border-radius:4px;")
+            else:
+                label.setStyleSheet("padding:6px;")
+            self.worker_labels.append(label)
+            self.worker_layout.addWidget(label)
 
     def _build_results_page(self) -> QWidget:
         page, layout = self._page_shell(
@@ -762,6 +771,10 @@ class MainWindow(QMainWindow):
         self.engine_thread.progress_event.connect(self._on_progress)
         self.engine_thread.completed.connect(self._screening_completed)
         self.engine_thread.failed.connect(self._screening_failed)
+        actual_workers = effective_worker_count(
+            self.config.worker_count, len(self.scan_result.candidates)
+        )
+        self._reset_worker_labels(actual_workers)
         self.progress_bar.setRange(0, len(self.scan_result.candidates))
         self.progress_bar.setValue(0)
         self.event_log.clear()
@@ -1019,6 +1032,7 @@ class MainWindow(QMainWindow):
         if dialog.exec() == QDialog.DialogCode.Accepted:
             try:
                 self.config = dialog.apply(self.config)
+                self._save_runtime_settings()
                 self._update_api_status()
             except Exception as exc:
                 QMessageBox.critical(self, "设置保存失败", str(exc))
@@ -1029,6 +1043,30 @@ class MainWindow(QMainWindow):
     def _restore_settings(self) -> None:
         self.resume_root.setText(self.settings.value("resume_root", ""))
         self.output_root.setText(self.settings.value("output_root", ""))
+        try:
+            count = max(
+                1,
+                min(16, int(self.settings.value("worker_count", self.config.worker_count))),
+            )
+        except (TypeError, ValueError):
+            count = self.config.worker_count
+        model = str(self.settings.value("model", self.config.model)).strip() or self.config.model
+        redact = self.settings.value("redact_pii", self.config.redact_pii, type=bool)
+        self.config = self.config.model_copy(
+            update={
+                "model": model,
+                "worker_count": count,
+                "extraction_concurrency": count,
+                "analysis_concurrency": count,
+                "redact_pii": redact,
+            }
+        )
+        self._reset_worker_labels(count)
+
+    def _save_runtime_settings(self) -> None:
+        self.settings.setValue("worker_count", self.config.worker_count)
+        self.settings.setValue("model", self.config.model)
+        self.settings.setValue("redact_pii", self.config.redact_pii)
 
     def closeEvent(self, event) -> None:
         if self.engine_thread and self.engine_thread.isRunning():
@@ -1044,4 +1082,5 @@ class MainWindow(QMainWindow):
             self.engine_thread.wait(4000)
         self.settings.setValue("resume_root", self.resume_root.text())
         self.settings.setValue("output_root", self.output_root.text())
+        self._save_runtime_settings()
         event.accept()

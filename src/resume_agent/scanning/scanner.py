@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import mimetypes
 import os
+import re
 import uuid
 from pathlib import Path
 
@@ -57,7 +58,11 @@ def sha256_file(path: Path, chunk_size: int = 1024 * 1024) -> str:
 
 def classify_role(path: Path) -> str:
     name = path.name.lower()
-    if any(word in name for word in ("简历", "resume", "cv")):
+    if (
+        "简历" in name
+        or "resume" in name
+        or re.search(r"(?<![a-z0-9])cv(?![a-z0-9])", name)
+    ):
         return "primary_resume"
     if any(word in name for word in ("证书", "certificate", "证明", "获奖")):
         return "certificate"

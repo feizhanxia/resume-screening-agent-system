@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.1.0-beta.4
+
+- Deduplicate identical candidate files before extraction and model analysis while preserving every
+  original path in the inventory and copied package.
+- Classify candidate materials from bounded previews; analyze resumes in full and cap publications
+  and supplementary materials before sending text to DeepSeek.
+- Disable thinking mode for structured calls, retry empty/malformed JSON, preserve failed candidates
+  as review results, and record privacy-safe diagnostics.
+- Display the actual configured Worker count, persist runtime settings, and report partially
+  successful runs accurately.
+- Serialize native PDFium access to prevent intermittent page failures and process crashes while
+  retaining parallel DOCX/image extraction and model analysis.
+
 ## 0.1.0 - public beta
 
 - Native Windows desktop workflow for directory scanning, dynamic criteria, eight-worker processing,

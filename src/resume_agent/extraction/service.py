@@ -21,6 +21,7 @@ class ExtractionService:
         self.database = database
         self.semaphore = asyncio.Semaphore(concurrency)
         self.ocr_languages = ocr_languages
+        self._file_locks: dict[str, asyncio.Lock] = {}
 
     @staticmethod
     def version_for(file: MaterialFile) -> str:
@@ -38,36 +39,49 @@ class ExtractionService:
         cached = self.database.cached_extraction(file.file_id, version)
         if cached:
             return cached
-        async with self.semaphore:
-            suffix = file.absolute_path.suffix.lower()
-            if suffix in {".pdf", ".docx", ".png", ".jpg", ".jpeg", ".tif", ".tiff"} and (
-                file.size > MAX_EXTRACTABLE_BYTES
-            ):
-                result = ExtractionResult(
-                    file_id=file.file_id,
-                    status=ExtractionStatus.FAILED,
-                    expected_units=1,
-                    covered_units=0,
-                    error="文件超过 100 MB 的自动提取安全上限，需要人工复核",
-                    extractor_version=version,
-                )
-            elif suffix == ".pdf":
-                result = await asyncio.to_thread(
-                    extract_pdf, file.absolute_path, file.file_id, self.ocr_languages
-                )
-            elif suffix == ".docx":
-                result = await asyncio.to_thread(extract_docx, file.absolute_path, file.file_id)
-            elif suffix in {".png", ".jpg", ".jpeg", ".tif", ".tiff"}:
-                result = await asyncio.to_thread(
-                    extract_image, file.absolute_path, file.file_id, self.ocr_languages
-                )
-            else:
-                result = ExtractionResult(
-                    file_id=file.file_id,
-                    status=ExtractionStatus.INVENTORY_ONLY,
-                    expected_units=1,
-                    covered_units=1,
-                    extractor_version=version,
-                )
-            self.database.save_extraction(result)
-            return result
+        lock = self._file_locks.setdefault(file.file_id, asyncio.Lock())
+        async with lock:
+            cached = self.database.cached_extraction(file.file_id, version)
+            if cached:
+                return cached
+            async with self.semaphore:
+                suffix = file.absolute_path.suffix.lower()
+                if suffix in {
+                    ".pdf",
+                    ".docx",
+                    ".png",
+                    ".jpg",
+                    ".jpeg",
+                    ".tif",
+                    ".tiff",
+                } and (file.size > MAX_EXTRACTABLE_BYTES):
+                    result = ExtractionResult(
+                        file_id=file.file_id,
+                        status=ExtractionStatus.FAILED,
+                        expected_units=1,
+                        covered_units=0,
+                        error="文件超过 100 MB 的自动提取安全上限，需要人工复核",
+                        extractor_version=version,
+                    )
+                elif suffix == ".pdf":
+                    result = await asyncio.to_thread(
+                        extract_pdf, file.absolute_path, file.file_id, self.ocr_languages
+                    )
+                elif suffix == ".docx":
+                    result = await asyncio.to_thread(
+                        extract_docx, file.absolute_path, file.file_id
+                    )
+                elif suffix in {".png", ".jpg", ".jpeg", ".tif", ".tiff"}:
+                    result = await asyncio.to_thread(
+                        extract_image, file.absolute_path, file.file_id, self.ocr_languages
+                    )
+                else:
+                    result = ExtractionResult(
+                        file_id=file.file_id,
+                        status=ExtractionStatus.INVENTORY_ONLY,
+                        expected_units=1,
+                        covered_units=1,
+                        extractor_version=version,
+                    )
+                self.database.save_extraction(result)
+                return result

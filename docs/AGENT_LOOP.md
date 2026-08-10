@@ -38,7 +38,7 @@ class MaterialFile:
     extraction_status: str
 ```
 
-`material_role` 可为 `primary_resume | supplementary | certificate | portfolio | publication | other | unknown`。角色用于展示和提示，不决定材料是否被读取；所有受支持文件都必须进入覆盖审计。
+`material_role` 可为 `primary_resume | supplementary | certificate | portfolio | publication | other | unknown`。所有受支持文件仍在本地提取并进入覆盖审计；角色决定发送给模型的文本预算：主简历使用全文，论文和其他非主材料仅使用受限预览。
 
 ## 2. 为什么使用有界 Loop
 
