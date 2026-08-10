@@ -43,7 +43,7 @@ Changelog = "https://github.com/feizhanxia/resume-screening-agent-system/blob/ma
 dev = [
   "pyinstaller==6.22.0",
   "pytest>=8.3,<9",
-  "pytest-asyncio>=0.25,<1",
+  "pytest-asyncio>=0.25,<2",
   "ruff>=0.11,<1",
 ]
 
